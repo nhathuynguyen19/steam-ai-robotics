@@ -1,0 +1,43 @@
+<table>
+  <thead>
+    <tr>
+      <th>Ngày</th>
+      <th>Tiêu đề</th>
+      <th>Địa điểm</th>
+      <th>Tham gia</th>
+      <th>Check-in</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  {% for e in events %}
+    <tr id="ev-{{ e.id }}">
+      <td>{{ e.date }}</td>
+      <td>{{ e.title }}</td>
+      <td>{{ e.location }}</td>
+
+      <td>
+        {% if e.joined %}
+          <span class="joined">Đã tham gia</span>
+        {% else %}
+          <button
+            hx-post="/events/{{ e.id }}/join"
+            hx-target="#ev-{{ e.id }}"
+            hx-swap="outerHTML">Tham gia</button>
+        {% endif %}
+      </td>
+
+      <td>
+        {% if e.checked_in %}
+          <span class="checked">Đã check-in</span>
+        {% else %}
+          <button
+            hx-post="/events/{{ e.id }}/checkin"
+            hx-target="#ev-{{ e.id }}"
+            hx-swap="outerHTML">Check-in</button>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>

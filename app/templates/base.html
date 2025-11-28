@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Hệ thống Chấm công{% endblock %}</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="navbar-left"><a href="/">Trung tâm ABC</a></div>
+  <nav class="navbar-right">
+
+    {% if request.session.get("role") == "admin" %}
+      <a href="/admin/events">Sự kiện</a>
+      <a href="/auth/logout">Đăng xuất</a>
+    {% elif request.session.get("role") == "user" %}
+      <a href="/events">Sự kiện</a>
+      <a href="/auth/logout">Đăng xuất</a>
+    {% else %}
+      <a href="/login">Đăng nhập</a>
+      <a href="/register">Đăng ký</a>
+    {% endif %}
+
+  </nav>
+</header>
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Modal dùng chung -->
+<div id="modal" class="modal"

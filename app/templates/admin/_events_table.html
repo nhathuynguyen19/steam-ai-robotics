@@ -1,0 +1,27 @@
+<table>
+  <thead>
+    <tr>
+      <th>Ngày</th>
+      <th>Tiêu đề</th>
+      <th>Địa điểm</th>
+      <th>CTV</th>
+    </tr>
+  </thead>
+
+  <tbody>
+  {% for e in events %}
+    <tr>
+      <td>{{ e.date }}</td>
+      <td>{{ e.title }}</td>
+      <td>{{ e.location }}</td>
+
+      <td>
+        <button
+          hx-get="/admin/events/{{ e.id }}/approve-modal"
+          hx-target="#modal"
+          hx-swap="outerHTML">Duyệt</button>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
