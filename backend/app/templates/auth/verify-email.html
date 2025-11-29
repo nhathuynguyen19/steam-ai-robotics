@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Kích hoạt tài khoản{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h2>Kích hoạt tài khoản</h2>
+
+  <div id="verify-box"
+       hx-get="/verify-email?token={{ token }}"
+       hx-trigger="load"
+       hx-target="this"
+       hx-swap="innerHTML">
+
+    <!-- Khi load sẽ tự gọi API & thay thế bằng message -->
+    Đang kiểm tra token...
+  </div>
+
+  <p class="form-links">
+    <a href="/login">Đăng nhập</a>
+  </p>
+</div>
+{% endblock %}

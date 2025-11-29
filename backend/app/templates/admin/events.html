@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Quản lý sự kiện{% endblock %}
+
+{% block content %}
+<h2>Quản lý sự kiện</h2>
+
+<!-- Form thêm sự kiện -->
+<form
+  hx-post="/admin/events/create"
+  hx-target="#events-table"
+  hx-swap="outerHTML"
+  class="event-form">
+
+  <input name="title" placeholder="Tên sự kiện" required>
+  <input name="location" placeholder="Địa điểm" required>
+  <input name="date" type="date" required>
+
+  <button>Thêm sự kiện</button>
+</form>
+
+<!-- Bảng sự kiện -->
+<div id="events-table"
+     hx-get="/admin/events/partial"
+     hx-trigger="load"
+     hx-swap="innerHTML"></div>
+
+{% endblock %}

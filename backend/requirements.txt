@@ -11,3 +11,5 @@ fastapi-mail
 python-dotenv
 psycopg2-binary
 slowapi
+jinja2
+itsdangerous

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Đăng ký{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h2>Đăng ký</h2>
+
+  <form
+    hx-post="/register"
+    hx-encoding="json"
+    hx-target="#reg-msg"
+    hx-swap="innerHTML"
+  >
+    <label>Email</label>
+    <input name="email" type="email" required>
+
+    <label>Mật khẩu</label>
+    <input name="password" type="password" required>
+
+    <button type="submit">Đăng ký</button>
+  </form>
+
+  <div id="reg-msg" class="msg"></div>
+
+  <p class="form-links">
+    <a href="/login">Đăng nhập</a>
+  </p>
+</div>
+{% endblock %}

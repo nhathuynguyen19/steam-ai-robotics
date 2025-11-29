@@ -7,7 +7,7 @@ import core.security as security
 # Tạo Router riêng, prefix là /admin
 # dependencies=[Depends(auth.get_current_admin_user)] đảm bảo TẤT CẢ các API trong này đều bắt buộc quyền Admin
 router = APIRouter(
-    prefix="/admin",
+    prefix="/api/admin",
     tags=["Admin Management"],
     dependencies=[Depends(security.get_current_admin_user)] 
 )

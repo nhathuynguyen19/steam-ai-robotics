@@ -6,7 +6,7 @@ import models, schemas, database
 import core.security as security
 
 router = APIRouter(
-    prefix="/users",
+    prefix="/api/users",
     tags=["users"],
 )
 

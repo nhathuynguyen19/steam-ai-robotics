@@ -8,6 +8,8 @@ from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 import database, models, schemas
 from sqlalchemy.orm import Session
+import models, schemas, database
+import os
 
 load_dotenv()
 

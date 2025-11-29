@@ -1,0 +1,27 @@
+<div class="modal">
+  <div class="modal-content">
+    <h3>CTV tham gia: {{ event.title }}</h3>
+
+    <table>
+      <tr><th>Email</th><th>Check-in</th><th>Duyệt</th></tr>
+
+      {% for u in event.users %}
+      <tr id="user-{{ u.id }}">
+        <td>{{ u.email }}</td>
+        <td>{{ u.checked_in }}</td>
+
+        <td>
+          <button
+            hx-post="/admin/events/{{ event.id }}/approve/{{ u.id }}"
+            hx-target="#user-{{ u.id }}"
+            hx-swap="outerHTML">✔</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <button onclick="document.getElementById('modal').innerHTML=''">
+      Đóng
+    </button>
+  </div>
+</div>

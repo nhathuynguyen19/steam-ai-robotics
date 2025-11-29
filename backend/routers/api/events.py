@@ -23,7 +23,7 @@ PERIOD_END_TIMES = {
 }
 
 router = APIRouter(
-    prefix="/events",
+    prefix="/api/events",
     tags=["events"],
 )
 

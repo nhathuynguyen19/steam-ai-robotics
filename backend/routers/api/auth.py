@@ -15,7 +15,7 @@ import re
 from core.limiter import limiter
 
 router = APIRouter(
-    prefix="/auth",
+    prefix="/api/auth",
     tags=["auth"],
 )
 
