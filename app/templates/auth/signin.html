@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h2>Đăng nhập</h2>
+
+  <form
+    hx-post="/api/auth/signin/"
+    hx-swap="none"
+    class="auth-form"
+    method="POST"
+  >
+    <label>Email</label>
+    <input name="username" type="email" required>
+
+    <label>Mật khẩu</label>
+    <input name="password" type="password" required>
+
+    <button>Đăng nhập</button>
+  </form>
+
+  <div id="login-msg" class="msg"></div>
+
+  <p class="form-links">
+    <a href="/register">Tạo tài khoản mới</a>
+  </p>
+
+  <script>
+    document.addEventListener("htmx:afterRequest", function(evt) {
+        // Chỉ xử lý sự kiện từ form login (dựa trên URL endpoint)
+        if (evt.detail.elt.getAttribute("hx-post") === "/api/auth/signin/") {
+            
+            if (evt.detail.successful) {
+                // Trường hợp thành công: Backend trả về 200 OK và set cookie
+                // Chúng ta cần redirect người dùng vào trang trong.
+                window.location.href = "/"; 
+            } else {
+                // Trường hợp thất bại: Backend trả về lỗi 4xx (JSON)
+                try {
+                    const xhr = evt.detail.xhr;
+                    const data = JSON.parse(xhr.responseText);
+                    const errorMsg = data.detail || "Đăng nhập thất bại";
+                    
+                    // Render HTML thông báo lỗi (sử dụng style từ partials/error.html)
+                    const errorHtml = `
+                        <div class="msg error" style="color: red; margin-top: 10px; padding: 10px; background: #ffe6e6; border: 1px solid red; border-radius: 4px;">
+                            ${errorMsg}
+                        </div>
+                    `;
+                    document.getElementById("login-msg").innerHTML = errorHtml;
+                } catch (e) {
+                    console.error("Lỗi khi parse phản hồi:", e);
+                    document.getElementById("login-msg").innerText = "Đã xảy ra lỗi không xác định.";
+                }
+            }
+        }
+    });
+  </script>
+</div>
+{% endblock %}

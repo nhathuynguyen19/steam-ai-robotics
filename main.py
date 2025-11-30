@@ -80,37 +80,22 @@ async def redoc_html():
 # backend/main.py
 
 @app.get("/", response_class=HTMLResponse)
-async def page_home(request: Request, db: Session = Depends(database.get_db)):
-    # 1. Lấy token từ cookie
-    token = request.cookies.get("access_token")
+async def page_home(request: Request, user: models.User | None = Depends(security.get_user_from_cookie)):
+    # Kiểm tra: Nếu chưa đăng nhập -> Đá về trang signin
+    if not user:
+        return RedirectResponse(url="/signin", status_code=302)
     
-    if token:
-        # Cookie thường lưu dạng "Bearer <token>", cần tách ra
-        if token.startswith("Bearer "):
-            token = token.split(" ")[1]
-            
-        try:
-            # 2. Giải mã token để lấy email
-            payload = jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
-            email: str = payload.get("sub")
-            
-            # 3. Kiểm tra user trong DB (để chắc chắn user chưa bị xóa/khóa)
-            if email:
-                user = db.query(models.User).filter(models.User.email == email).first()
-                if user and user.status:
-                    # 4. Token hợp lệ -> Chuyển hướng sang trang events
-                    return RedirectResponse(url="/events", status_code=302)
+    return RedirectResponse(url="/events", status_code=302)
                     
-        except (jwt.JWTError, Exception):
-            # Nếu token lỗi, hết hạn hoặc user không tồn tại -> Bỏ qua, xuống dưới hiện login
-            pass
-
     # 5. Nếu không có token hợp lệ -> Hiện trang đăng nhập
-    return templates.TemplateResponse("auth/login.html", {"request": request})
+    return templates.TemplateResponse("auth/signin.html", {"request": request})
 
-@app.get("/login/", response_class=HTMLResponse)
-def page_login(request: Request):
-    return templates.TemplateResponse("auth/login.html", {"request": request})
+@app.get("/signin/", response_class=HTMLResponse)
+def page_signin(request: Request,
+               user: models.User | None = Depends(security.get_user_from_cookie)):
+    if user:
+        return RedirectResponse(url="/events", status_code=302)
+    return templates.TemplateResponse("auth/signin.html", {"request": request})
 
 @app.get("/forgot-password/", response_class=HTMLResponse)
 def page_forgot_password(request: Request):
@@ -164,28 +149,16 @@ async def verify_email(request: Request, token: str, db: Session = Depends(datab
 # ============================
 
 @app.get("/events", response_class=HTMLResponse)
-def page_events(request: Request, db: Session = Depends(database.get_db)):
-    if token.startswith("Bearer "):
-        token = token.split(" ")[1]
-        
-        try:
-            # 2. Giải mã token để lấy email
-            payload = jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
-            email: str = payload.get("sub")
-            
-            # 3. Kiểm tra user trong DB (để chắc chắn user chưa bị xóa/khóa)
-            if email:
-                user = db.query(models.User).filter(models.User.email == email).first()
-                if user and user.status:
-                    # 4. Token hợp lệ -> Chuyển hướng sang trang events
-                    return RedirectResponse(url="/events", status_code=302)
-                    
-        except (jwt.JWTError, Exception):
-            # Nếu token lỗi, hết hạn hoặc user không tồn tại -> Bỏ qua, xuống dưới hiện login
-            pass
-
-    # 5. Nếu không có token hợp lệ -> Hiện trang đăng nhập
-    return templates.TemplateResponse("user/login.html", {"request": request})
+def page_events(request: Request, user: models.User | None = Depends(security.get_user_from_cookie)):
+    # Kiểm tra: Nếu chưa đăng nhập -> Đá về trang signin
+    if not user:
+        return RedirectResponse(url="/signin", status_code=302)
+    
+    # Nếu đã đăng nhập -> Hiện trang Events và truyền user vào template
+    return templates.TemplateResponse("user/events.html", {
+        "request": request,
+        "user": user  # Truyền user để hiển thị tên, avatar...
+    })
 
 
 # ============================

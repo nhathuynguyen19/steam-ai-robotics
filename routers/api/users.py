@@ -10,16 +10,16 @@ router = APIRouter(
     tags=["users"],
 )
 
-# get all user
-@router.get("/", response_model=list[schemas.UserResponse])
-def read_users(
-    skip: int = 0, 
-    limit: int = 100, 
-    db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(security.get_current_admin_user)
-):
-    users = db.query(models.User).offset(skip).limit(limit).all()
-    return users
+# # get all user
+# @router.get("/", response_model=list[schemas.UserResponse])
+# def read_users(
+#     skip: int = 0, 
+#     limit: int = 100, 
+#     db: Session = Depends(database.get_db),
+#     current_user: models.User = Depends(security.get_current_admin_user)
+# ):
+#     users = db.query(models.User).offset(skip).limit(limit).all()
+#     return users
 
 @router.get("/me/", response_model=schemas.UserResponse)
 async def read_users_me(

@@ -4,7 +4,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from typing import Annotated
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from jose import JWTError, jwt
 import database, models, schemas
 from sqlalchemy.orm import Session
@@ -73,3 +73,28 @@ async def get_current_admin_user(current_user: Annotated[models.User, Depends(ge
     if current_user.role != schemas.UserRole.ADMIN.value: # Check string role
         raise HTTPException(status_code=403, detail="Not enough permissions")
     return current_user
+
+# Hàm này dùng để lấy user từ cookie (Dùng cho các trang HTML)
+async def get_user_from_cookie(
+    request: Request, 
+    db: Session = Depends(database.get_db)
+):
+    token = request.cookies.get("access_token")
+    if not token:
+        return None
+
+    # Xử lý prefix Bearer nếu có
+    if token.startswith("Bearer "):
+        token = token.split(" ")[1]
+        
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email:
+            user = db.query(models.User).filter(models.User.email == email).first()
+            if user and user.status:
+                return user
+    except Exception:
+        pass
+    
+    return None
