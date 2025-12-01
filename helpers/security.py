@@ -10,6 +10,8 @@ import database, models, schemas
 from sqlalchemy.orm import Session
 import models, schemas, database
 import os
+from fastapi.responses import HTMLResponse, RedirectResponse
+
 
 load_dotenv()
 
@@ -98,3 +100,27 @@ async def get_user_from_cookie(
         pass
     
     return None
+
+async def get_current_admin_from_cookie(
+    request: Request,
+    user: Annotated[models.User | None, Depends(get_user_from_cookie)]
+):
+    """
+    Dependency bắt buộc phải có Cookie hợp lệ VÀ là Admin.
+    Dùng cho các route bảo mật (VD: Tạo sự kiện).
+    """
+    # 1. Kiểm tra đăng nhập
+    if not user:
+        # Nếu chưa đăng nhập -> Redirect về trang login thay vì báo lỗi 401 JSON
+        # (Vì đây là truy cập trình duyệt)
+        return RedirectResponse(url="/auth/signin", status_code=status.HTTP_302_FOUND)
+        # Hoặc nếu muốn báo lỗi chuẩn: raise HTTPException(status_code=401)
+
+    # 2. Kiểm tra quyền Admin
+    if user.role != schemas.UserRole.ADMIN.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Truy cập bị từ chối. Bạn không phải là Admin."
+        )
+    
+    return user

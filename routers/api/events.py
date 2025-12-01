@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Form, Response
-from typing import Annotated
+from fastapi import APIRouter, Form, Response, Query
+from typing import Annotated, Optional
 from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session, joinedload
 import models, schemas, database
@@ -11,6 +11,21 @@ from fastapi.templating import Jinja2Templates
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+PERIOD_START_TIMES = {
+    1:  (7, 0),
+    2:  (8, 0),
+    3:  (9, 0),
+    4:  (10, 0),
+    5:  (13, 0),
+    6:  (14, 0),
+    7:  (15, 0),
+    8:  (16, 0),
+    9:  (17, 30),
+    10: (18, 25),
+    11: (19, 25),
+    12: (20, 25),
+}
 
 PERIOD_END_TIMES = {
     1:  (8, 0),
@@ -31,6 +46,14 @@ router = APIRouter(
     prefix="/api/events",
     tags=["events"],
 )
+
+# --- Helper function để lấy datetime thực tế ---
+def get_event_times(event_day: date, start_period: int, end_period: int):
+    sh, sm = PERIOD_START_TIMES.get(start_period, (7, 0))
+    eh, em = PERIOD_END_TIMES.get(end_period, (21, 0))
+    start_dt = datetime.combine(event_day, time(sh, sm))
+    end_dt = datetime.combine(event_day, time(eh, em))
+    return start_dt, end_dt
 
 # --- EVENT ENDPOINTS (Admin Create) ---
 
@@ -76,7 +99,6 @@ def create_event(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_current_admin_user)
 ):
-    
     new_event = models.Event(**event.dict())
     try:
         db.add(new_event)

@@ -1,33 +1,153 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>{% block title %}base{% endblock %}</title>
-  <!-- Bootstrap CSS và JS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <!-- HTMX -->
-  <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ | HUSC AI & Robotics</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa; /* Light gray background */
+        }
+        
+        /* Custom Tab/Pill Style */
+        .nav-pills-custom {
+            background-color: #fff;
+            padding: 0.5rem;
+            border-radius: 50rem; /* Fully rounded */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            display: inline-flex;
+            border: 1px solid #dee2e6;
+        }
+
+        .nav-pills-custom .nav-link {
+            color: #6c757d;
+            font-weight: 600;
+            border-radius: 50rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .nav-pills-custom .nav-link:hover {
+            color: #0d6efd;
+            background-color: #f1f3f5;
+        }
+
+        .nav-pills-custom .nav-link.active {
+            background-color: #0d6efd; /* Primary Blue */
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+        }
+
+        /* Active color variations based on context */
+        .nav-link.active[hx-get*="ongoing"] {
+            background-color: #dc3545; /* Red for Ongoing */
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+        }
+        .nav-link.active[hx-get*="finished"] {
+            background-color: #198754; /* Green for Finished */
+            box-shadow: 0 2px 4px rgba(25, 135, 84, 0.3);
+        }
+    </style>
 </head>
-<body style="padding-top: 70px;">
+<body style="padding-top: 80px;"> <header>
+    {% include "/partials/navbar.html" %}
+  </header>
 
-<header class="navbar">
-  {% include "/partials/navbar.html" %}
-</header>
-
-<main class="container">
-  <div 
-      id="events-container"
-      hx-get="/partials/events-table" 
-      hx-trigger="load, event_updated from:body" 
-      hx-swap="innerHTML">
+  <main class="container py-4" style="min-height: 85vh;">
       
-      <!-- Placeholder hiển thị trong lúc chờ backend render -->
-      <div class="text-center py-5">
-          <div class="spinner-border text-primary" role="status"></div>
-          <p>Đang tải events...</p>
+      <div class="row align-items-center mb-4">
+          <div class="col-md-6">
+              <h2 class="fw-bold text-dark mb-1">Sự kiện & Hoạt động</h2>
+              <p class="text-muted mb-0">Theo dõi lịch trình các lớp học, kỳ thi và sự kiện quan trọng.</p>
+          </div>
+          </div>
+
+      <div class="d-flex justify-content-center mb-4">
+          <div class="nav-pills-custom">
+              <ul class="nav">
+                  
+                  <li class="nav-item">
+                      <a class="nav-link mx-1 {% if tab == 'upcoming' %}active{% endif %}" 
+                        style="cursor: pointer;"
+                        hx-get="/partials/events-table?tab=upcoming"
+                        hx-target="#events-content-area"
+                        hx-swap="innerHTML"
+                        hx-push-url="?tab=upcoming"
+                        onclick="setActiveTab(this)">
+                          <i class="bi bi-calendar-event me-2"></i>Sắp diễn ra
+                      </a>
+                  </li>
+        
+                  <li class="nav-item">
+                      <a class="nav-link mx-1 {% if tab == 'ongoing' %}active{% endif %}" 
+                        style="cursor: pointer;"
+                        hx-get="/partials/events-table?tab=ongoing"
+                        hx-target="#events-content-area"
+                        hx-swap="innerHTML"
+                        hx-push-url="?tab=ongoing" 
+                        onclick="setActiveTab(this)">
+                          <i class="bi bi-broadcast me-2"></i>Đang diễn ra
+                      </a>
+                  </li>
+                  
+                  <li class="nav-item">
+                      <a class="nav-link mx-1 {% if tab == 'finished' %}active{% endif %}" 
+                        style="cursor: pointer;"
+                        hx-get="/partials/events-table?tab=finished"
+                        hx-target="#events-content-area"
+                        hx-swap="innerHTML"
+                        hx-push-url="?tab=finished"
+                        onclick="setActiveTab(this)">
+                          <i class="bi bi-check-all me-2"></i>Đã kết thúc
+                      </a>
+                  </li>
+              </ul>
+          </div>
       </div>
-  </div>
-</main>
+
+      <div id="events-content-area"
+          hx-get="/partials/events-table?tab={{ tab }}" 
+          hx-trigger="load, event_updated from:body" 
+          hx-swap="innerHTML"
+      >
+          <div class="d-flex flex-column align-items-center justify-content-center py-5 my-5">
+              <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                  <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-secondary fw-medium">Đang tải dữ liệu sự kiện...</p>
+          </div>
+      </div>
+  </main>
+
+  <footer class="mt-auto">
+      {% include "partials/footer.html" %}
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+      // Enhanced Script for Tab Switching
+      function setActiveTab(element) {
+          // Remove 'active' class from all nav-links
+          document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+          // Add 'active' class to the clicked element
+          element.classList.add('active');
+      }
+
+      // Optional: Add listeners for HTMX errors to show toast messages
+      document.body.addEventListener('htmx:responseError', function(evt) {
+          alert("Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại.");
+      });
+  </script>
 
 </body>
+</html>

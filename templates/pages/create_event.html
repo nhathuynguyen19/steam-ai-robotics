@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo sự kiện mới</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body style="padding-top: 70px;" class="bg-light">
+
+  <header class="navbar">
+    {% include "/partials/navbar.html" %}
+  </header>
+
+  <main class="container mt-4" style="min-height: 80vh;">
+      <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+              
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h4 class="mb-0 text-primary fw-bold">
+                        <i class="bi bi-calendar-plus me-2"></i>Tạo sự kiện mới
+                    </h4>
+                </div>
+                
+                <div class="card-body p-4">
+                    
+                    {% if error %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                    {% endif %}
+
+                    <form action="/events/create" method="POST">
+                        
+                        <div class="row mb-3">
+                            <div class="col-12 mb-3">
+                                <label for="name" class="form-label fw-bold">Tên sự kiện <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="VD: Thi cuối kỳ môn AI" required autofocus>
+                            </div>
+                            <div class="col-12">
+                                <label for="school_name" class="form-label fw-bold">Địa điểm</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-geo-alt"></i></span>
+                                    <input type="text" class="form-control" id="school_name" name="school_name" placeholder="VD: Phòng E201 - HUSC">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 text-secondary opacity-25">
+
+                        <div class="mb-3">
+                            <label for="day_start" class="form-label fw-bold">Thời gian diễn ra <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="day_start" name="day_start" required>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label for="start_period" class="form-label fw-bold">Tiết bắt đầu</label>
+                                <input type="number" class="form-control" id="start_period" name="start_period" min="1" max="12" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="end_period" class="form-label fw-bold">Tiết kết thúc</label>
+                                <input type="number" class="form-control" id="end_period" name="end_period" min="1" max="12" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 text-secondary opacity-25">
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="number_of_student" class="form-label fw-bold">Số lượng Học sinh</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-backpack"></i></span>
+                                    <input type="number" class="form-control" id="number_of_student" name="number_of_student" min="0" value="0" required>
+                                </div>
+                                <div class="form-text" style="font-size: 0.85rem;">Quy mô lớp học hoặc phòng thi.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="max_user_joined" class="form-label fw-bold text-primary">Giới hạn GV/HT đăng ký</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white"><i class="bi bi-person-badge"></i></span>
+                                    <input type="number" class="form-control border-primary" id="max_user_joined" name="max_user_joined" min="1" value="2" required>
+                                </div>
+                                <div class="form-text" style="font-size: 0.85rem;">Số Instructor/TA tối đa được join sự kiện này.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="/events" class="btn btn-outline-secondary me-md-2">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-primary fw-bold px-4">Lưu sự kiện</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+          </div>
+      </div>
+  </main>
+
+  <footer>
+  {% include "partials/footer.html" %}
+  </footer>
+
+</body>
+</html>

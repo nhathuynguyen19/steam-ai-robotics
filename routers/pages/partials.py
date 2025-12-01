@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from typing import Annotated
 from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session, joinedload
@@ -11,6 +11,20 @@ from fastapi.templating import Jinja2Templates
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+PERIOD_START_TIMES = {
+    1:  (7, 0),
+    2:  (8, 0),
+    3:  (9, 0),
+    4:  (10, 0),
+    5:  (13, 0),
+    6:  (14, 0),
+    7:  (15, 0),
+    8:  (16, 0),
+    9:  (17, 30),
+    10: (18, 25),
+    11: (19, 25),
+    12: (20, 25),
+}
 
 PERIOD_END_TIMES = {
     1:  (8, 0),
@@ -27,6 +41,11 @@ PERIOD_END_TIMES = {
     12: (21, 25),
 }
 
+TAB_TITLES = {
+    "upcoming": "Sự Kiện Sắp Diễn Ra",
+    "ongoing": "Sự Kiện Đang Diễn Ra",
+    "finished": "Sự Kiện Đã Kết Thúc"
+}
 
 # Hàm helper chuyển tiết học sang giờ (7h - 13h) để dùng trong template
 def format_period(period: int) -> str:
@@ -41,6 +60,7 @@ router = APIRouter(
 @router.get("/events-table")
 async def render_events_table(
     request: Request,
+    tab: str = Query("upcoming", enum=["upcoming", "ongoing", "finished"]),
     db: Session = Depends(database.get_db), 
     current_user = Depends(security.get_user_from_cookie)
 ):
@@ -51,42 +71,74 @@ async def render_events_table(
         )
 
    # Lấy sự kiện chưa bị xóa
-    events = db.query(models.Event)\
+    all_events = db.query(models.Event)\
         .filter(models.Event.status != "deleted")\
         .options(joinedload(models.Event.participants).joinedload(models.UserEvent.user))\
         .order_by(models.Event.day_start)\
         .limit(20)\
         .all()
 
-    events_view = []
+    filtered_events = []
     now = datetime.now()
 
-    for event in events:
-        # 1. Lọc danh sách Instructor và TA để hiển thị text
+    # 2. Lọc sự kiện theo Tab
+    for event in all_events:
+        # Lấy giờ phút bắt đầu và kết thúc từ dict
+        start_h, start_m = PERIOD_START_TIMES.get(event.start_period, (7, 0))
+        end_h, end_m = PERIOD_END_TIMES.get(event.end_period, (23, 59))
+
+        # Tạo datetime đầy đủ
+        start_dt = datetime.combine(event.day_start, time(start_h, start_m))
+        end_dt = datetime.combine(event.day_start, time(end_h, end_m))
+        
+        # Gán tạm vào object để dùng cho việc sort bên dưới
+        event.real_start_dt = start_dt
+        event.real_end_dt = end_dt
+
+        # Logic phân loại
+        if tab == "upcoming":
+            # Sắp diễn ra: Thời gian bắt đầu > hiện tại
+            if start_dt > now:
+                filtered_events.append(event)
+        
+        elif tab == "ongoing":
+            # Đang diễn ra: Đã bắt đầu nhưng chưa kết thúc
+            if start_dt <= now <= end_dt:
+                filtered_events.append(event)
+        
+        elif tab == "finished":
+            # Đã kết thúc: Thời gian kết thúc < hiện tại
+            if end_dt < now:
+                filtered_events.append(event)
+
+    # 3. Sắp xếp danh sách
+    if tab == "finished":
+        # Sự kiện đã qua: Sự kiện mới nhất (vừa xong) lên đầu
+        filtered_events.sort(key=lambda x: x.real_end_dt, reverse=True)
+    else:
+        # Sắp diễn ra & Đang diễn ra: Sự kiện gần nhất (sắp tới) lên đầu
+        filtered_events.sort(key=lambda x: x.real_start_dt)
+
+    # Giới hạn số lượng hiển thị (ví dụ 50) để tránh quá tải view
+    filtered_events = filtered_events[:50]
+
+    # 4. Build View Model (Giữ nguyên logic cũ của bạn)
+    events_view = []
+    for event in filtered_events:
         instructors = [p.user.full_name for p in event.participants if p.role == 'instructor' and p.user]
         tas = [p.user.full_name for p in event.participants if p.role == 'ta' and p.user]
         
-        # 2. Kiểm tra trạng thái của User hiện tại với Event này
-        # Tìm xem user có trong list participants không
         current_participant = next((p for p in event.participants if p.user_id == current_user.user_id), None)
-        
         is_joined = current_participant is not None
-        user_role = current_participant.role if is_joined else None
-        attendance_status = current_participant.status if is_joined else None # 'registered', 'attended'
-
-        # 3. Logic thời gian để enable/disable nút "Hoàn thành"
-        # Tính thời gian kết thúc sự kiện
-        end_hour, end_minute = PERIOD_END_TIMES.get(event.end_period, (23, 59))
-        event_end_time = datetime.combine(event.day_start, time(hour=end_hour, minute=end_minute))
-        is_ended = now > event_end_time
-
-        # 4. Kiểm tra xem sự kiện đã đầy chưa (để disable nút đăng ký)
-        current_count = len(event.participants)
-        is_full = current_count >= event.max_user_joined
+        
+        # Logic is_ended dùng chính biến real_end_dt đã tính ở trên
+        is_ended = now > event.real_end_dt
+        
+        is_full = len(event.participants) >= event.max_user_joined
 
         events_view.append({
             "event_id": event.event_id,
-            "day_str": event.day_start.strftime("%d/%m/%Y"), # Format ngày
+            "day_str": event.day_start.strftime("%d/%m/%Y"),
             "time_str": f"{format_period(event.start_period)} - {format_period(event.end_period + 1)}",
             "period_detail": f"(Tiết {event.start_period}-{event.end_period})",
             "school_name": event.school_name,
@@ -95,21 +147,24 @@ async def render_events_table(
             "instructors": ", ".join(instructors) if instructors else "---",
             "tas": ", ".join(tas) if tas else "---",
             
-            # Các biến flag cho UI
-            "is_joined": is_joined,           # Đã tham gia chưa
-            "user_role": user_role,           # Vai trò: instructor/ta
-            "attendance_status": attendance_status, # registered/attended
-            "is_ended": is_ended,             # Sự kiện đã kết thúc về mặt thời gian chưa
-            "is_full": is_full,               # Đã full slot chưa
+            "is_joined": is_joined,
+            "user_role": current_participant.role if is_joined else None,
+            "attendance_status": current_participant.status if is_joined else None,
+            "is_ended": is_ended,
+            "is_full": is_full,
             "is_locked": event.is_locked,
             "status": event.status
         })
+        
+    current_title = TAB_TITLES.get(tab, "Danh Sách Sự Kiện")
 
     return templates.TemplateResponse(
         "partials/events_table.html", 
         {
             "request": request, 
             "events": events_view,
-            "user": current_user
+            "user": current_user,
+            "current_tab": tab, # Truyền tab xuống view để active button nếu cần
+            "title": current_title # Truyền tiêu đề xuống template
         }
     )
