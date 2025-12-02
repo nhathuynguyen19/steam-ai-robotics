@@ -50,15 +50,18 @@ async def create_user_action(
     email: Annotated[str, Form()],
     role: Annotated[str, Form()],
     # Cập nhật: Cho phép None hoặc chuỗi rỗng
-    full_name: Annotated[Optional[str], Form()] = None, 
-    phone: Annotated[Optional[str], Form()] = None,
+    full_name: Annotated[str, Form()] = None, 
+    phone: Annotated[str, Form()] = None,
     # Cập nhật: Mặc định là husc1234 nếu form không gửi lên (dù form html đã có value sẵn)
     password: Annotated[str, Form()] = "husc1234", 
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_current_admin_from_cookie)
 ):
-
+    
     try:
+        if not password or password.strip() == "":
+            password = "husc1234"
+        
         # Validate dữ liệu
         user_data = schemas.UserCreateAdmin(
             email=email,
@@ -72,6 +75,10 @@ async def create_user_action(
         # Check email trùng
         if db.query(models.User).filter(models.User.email == user_data.email).first():
             raise ValueError("Email này đã được sử dụng.")
+        
+        # [FIX 5] Kiểm tra trùng Số điện thoại (Bắt buộc vì models.py yêu cầu unique)
+        if db.query(models.User).filter(models.User.phone == user_data.phone).first():
+            raise ValueError("Số điện thoại này đã được sử dụng.")
 
         # Tạo User
         new_user = models.User(
@@ -106,6 +113,22 @@ async def create_user_action(
                 "user": current_user,
                 "error": error_msg,
                 "form_data": { # Giữ lại dữ liệu cũ khi lỗi
+                    "email": email,
+                    "full_name": full_name,
+                    "phone": phone,
+                    "role": role
+                }
+            }
+        )
+    except ValueError as e: # Catch lỗi trùng email/phone
+        db.rollback()
+        return templates.TemplateResponse(
+            "pages/admin/create_user.html",
+            {
+                "request": request,
+                "user": current_user,
+                "error": str(e), # Hiển thị lỗi rõ ràng cho user
+                "form_data": {
                     "email": email,
                     "full_name": full_name,
                     "phone": phone,

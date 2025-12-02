@@ -43,7 +43,8 @@ def create_first_super_admin(db: Session, form_data: OAuth2PasswordRequestForm, 
         hashed_password=hashed_password,
         role=schemas.UserRole.ADMIN.value,
         status=False, # Chưa kích hoạt, cần verify email
-        full_name="Super Admin"
+        full_name="Super Admin",
+        phone="0900000000"
     )
     
     try:
