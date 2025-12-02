@@ -9,12 +9,7 @@ from datetime import datetime, date, time
 from pathlib import Path
 from fastapi.templating import Jinja2Templates
 
-import pytz
 
-VN_TZ = pytz.timezone("Asia/Ho_Chi_Minh")
-
-def now_vn():
-    return datetime.now(VN_TZ)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -86,7 +81,7 @@ async def render_events_table(
         .all()
 
     filtered_events = []
-    now = now_vn()
+    now = datetime.now()
 
     # 2. Lọc sự kiện theo Tab
     for event in all_events:

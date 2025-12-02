@@ -11,12 +11,7 @@ from sqlalchemy.orm import Session  # [Thêm] Để khai báo kiểu dữ liệu
 from datetime import date           # [Thêm] Để lấy ngày hiện tại
 import database
 from datetime import date, datetime, time
-import pytz
 
-VN_TZ = pytz.timezone("Asia/Ho_Chi_Minh")
-
-def now_vn():
-    return datetime.now(VN_TZ)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -52,6 +47,10 @@ def get_event_times(event_day: date, start_period: int, end_period: int):
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
+@router.get("/ping")
+async def ping():
+    return {"status": "OK"}
+
 @router.get("/")
 async def root(
     request: Request, 
@@ -59,7 +58,7 @@ async def root(
     user: models.User | None = Depends(security.get_user_from_cookie),
 ):
     if user:
-        now = now_vn()
+        now = datetime.now()
         today = now.date()
         
         # 1. Đếm sự kiện ở các NGÀY KHÁC (Dùng SQL cho nhanh)

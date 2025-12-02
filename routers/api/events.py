@@ -8,12 +8,6 @@ from schemas import EventRole
 from datetime import datetime, date, time
 from pathlib import Path
 from fastapi.templating import Jinja2Templates
-import pytz
-
-VN_TZ = pytz.timezone("Asia/Ho_Chi_Minh")
-
-def now_vn():
-    return datetime.now(VN_TZ)
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -276,7 +270,7 @@ def attend_event(
         raise HTTPException(status_code=400, detail="User has not joined this event")
     
     # kiem tra su kien ket thuc chua
-    now = now_vn()
+    now = datetime.now()
     
     # Lấy giờ, phút kết thúc dựa trên end_period của event
     # (Giả sử bạn đã đổi tên trường to_time -> end_period trong models.py như hướng dẫn trước)
