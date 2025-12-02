@@ -8,7 +8,14 @@
                 <h4 class="fw-bold text-primary"><i class="bi bi-person-gear me-2"></i>Chỉnh sửa thông tin</h4>
             </div>
             <div class="card-body p-4">
-                <form method="POST" action="/admin/users/{{ target_user.user_id }}/edit">
+                <form method="post" action="/admin/users/{{ target_user.user_id }}/edit/">
+
+                    {% if error %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                    {% endif %}
                     
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Email (Tên đăng nhập)</label>
@@ -41,7 +48,7 @@
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary fw-bold">Lưu thay đổi</button>
-                        <a href="/admin/users" class="btn btn-light text-muted">Hủy bỏ</a>
+                        <a href="/admin/users/" class="btn btn-light text-muted">Hủy bỏ</a>
                     </div>
                 </form>
             </div>

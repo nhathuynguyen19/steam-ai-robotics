@@ -202,7 +202,7 @@ async def list_users(
 
 
 # --- [MỚI] 2. Trang Edit User (GET) ---
-@router.get("/users/{user_id}/edit")
+@router.get("/users/{user_id}/edit/")
 async def edit_user_page(
     request: Request,
     user_id: int,
@@ -223,8 +223,8 @@ async def edit_user_page(
     })
 
 
-# --- [MỚI] 3. Xử lý Edit User (POST) ---
-@router.post("/users/{user_id}/edit")
+# --- [MỚI] 3. Xử lý Edit User (PUT) ---
+@router.post("/users/{user_id}/edit/")
 async def edit_user_action(
     request: Request,
     user_id: int,
@@ -235,22 +235,72 @@ async def edit_user_action(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_current_admin_from_cookie)
 ):
+    # 1. Kiểm tra quyền Admin cơ bản
     if not isinstance(current_user, models.User):
         return current_user
 
+    # 2. Lấy user cần sửa từ DB
     target_user = db.query(models.User).filter(models.User.user_id == user_id).first()
-    if not target_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # Update info
-    target_user.full_name = full_name
-    target_user.role = role
-    target_user.status = True if user_status else False # Checkbox HTML logic
-
-    # Update password nếu có nhập
-    if password and len(password.strip()) > 0:
-        target_user.hashed_password = security.get_password_hash(password)
-
-    db.commit()
     
-    return RedirectResponse(url="/admin/users", status_code=status.HTTP_303_SEE_OTHER)
+    # Hàm helper nội bộ: Dùng để trả về trang lỗi mà vẫn giữ dữ liệu Form
+    def render_page_with_error(error_message: str):
+        # Cập nhật object target_user với dữ liệu mới (chỉ trong bộ nhớ, chưa commit)
+        # Mục đích: Để form html hiển thị lại những gì user vừa nhập
+        target_user.full_name = full_name
+        target_user.role = target_user.role
+        target_user.status = True if user_status else False
+        
+        return templates.TemplateResponse("pages/admin/edit_user.html", {
+            "request": request,
+            "user": current_user,
+            "target_user": target_user,
+            "error": error_message
+        })
+        
+    # Nếu không tìm thấy user
+    if not target_user:
+        return templates.TemplateResponse("pages/admin/users.html", {
+            "request": request,
+            "user": current_user,
+            "error": "Người dùng không tồn tại!"
+        })
+
+    try:
+        # --- BẮT ĐẦU LOGIC BẢO VỆ & VALIDATE ---
+
+        # 3. Logic chặn tự hạ quyền (Admin tự sửa mình)
+        if current_user.user_id == target_user.user_id:
+            # Nếu role gửi lên KHÁC role hiện tại trong DB -> Báo lỗi
+            if role != target_user.role:
+                return render_page_with_error("Bạn không thể tự thay đổi quyền (role) của chính mình.")
+            
+            # (Tùy chọn) Chặn tự khóa tài khoản
+            new_status = True if user_status else False
+            if new_status is False:
+                 return render_page_with_error("Bạn không thể tự khóa tài khoản của chính mình.")
+
+        # 4. Logic bảo vệ người tạo (Creator Protection)
+        if current_user.created_by == target_user.user_id:
+            return render_page_with_error("Bạn không được phép chỉnh sửa tài khoản của người đã tạo ra bạn.")
+
+        # --- CẬP NHẬT DỮ LIỆU ---
+        
+        target_user.full_name = full_name
+        target_user.role = role
+        target_user.status = True if user_status else False # Checkbox logic
+
+        # Xử lý mật khẩu (nếu có nhập)
+        if password and len(password.strip()) > 0:
+            if len(password) < 8:
+                return render_page_with_error("Mật khẩu mới phải có ít nhất 8 ký tự.")
+            target_user.hashed_password = security.get_password_hash(password)
+
+        db.commit()
+        
+        # Thành công -> Redirect về danh sách
+        return RedirectResponse(url="/admin/users", status_code=status.HTTP_303_SEE_OTHER)
+
+    except Exception as e:
+        db.rollback()
+        # Bắt các lỗi không mong muốn khác (DB error, code logic...)
+        return render_page_with_error(f"Đã xảy ra lỗi hệ thống: {str(e)}")

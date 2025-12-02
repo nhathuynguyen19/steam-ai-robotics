@@ -18,6 +18,12 @@ class User(Base):
     bank_number = Column(String, nullable=True)
     token_version = Column(Integer, default=0)
     is_deleted = Column(Boolean, default=False)
+    # Lưu ID của người đã tạo ra user này (Self-referencing Foreign Key)
+    created_by = Column(Integer, ForeignKey("users.user_id"), nullable=True) 
+    
+    # Relationship để truy cập object người tạo dễ dàng (optional)
+    creator = relationship("User", remote_side=[user_id]) 
+    # ---------------------
 
     # Quan hệ ngược lại bảng user_event
     events = relationship("UserEvent", back_populates="user")
