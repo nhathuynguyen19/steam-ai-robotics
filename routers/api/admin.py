@@ -3,13 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List
 import database, models, schemas
 import helpers.security as security 
+from datetime import datetime
 
 # Tạo Router riêng, prefix là /admin
 # dependencies=[Depends(auth.get_current_admin_user)] đảm bảo TẤT CẢ các API trong này đều bắt buộc quyền Admin
 router = APIRouter(
     prefix="/api/admin",
     tags=["Admin Management"],
-    dependencies=[Depends(security.get_current_admin_user)]
+    dependencies=[Depends(security.get_current_admin_from_cookie)]
 )
 
 # xem 1 user chi tiết (Admin)
@@ -129,8 +130,10 @@ async def delete_user(
 
     # [THAY ĐỔI] Thay vì db.delete(), ta update trạng thái
     user_to_delete.is_deleted = True
+    user_to_delete.email += str(datetime.now())
+    user_to_delete.phone += str(datetime.now())
     user_to_delete.status = False # Tắt kích hoạt luôn để không đăng nhập được
     
     db.commit()
     
-    return {"message": "User deleted successfully"}
+    return
