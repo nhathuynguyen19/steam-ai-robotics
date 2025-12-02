@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng nhập | HUSC AI & Robotics</title>
+<<<<<<< HEAD
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -12,38 +13,84 @@
     
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
     
+=======
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="/static/css/bootstrap-5.3.8/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/css/bootstrap-icons-1.11.0/bootstrap-icons.min.css"
+    />
+
+    <script src="/static/js/htmx.min.js"></script>
+
+>>>>>>> 26f2de727d001209eb66d983246e112d22698913
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Màu nền dịu mắt */
-        }
-        .auth-card {
-            border: none;
-            border-radius: 1rem; /* Bo góc tròn trịa hơn */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .form-floating > .form-control:focus ~ label {
-            color: #0d6efd; /* Màu label khi focus */
-        }
-        .form-control:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f0f2f5; /* Màu nền dịu mắt */
+      }
+      .auth-card {
+        border: none;
+        border-radius: 1rem; /* Bo góc tròn trịa hơn */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .form-floating > .form-control:focus ~ label {
+        color: #0d6efd; /* Màu label khi focus */
+      }
+      .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      }
     </style>
-</head>
-<body class="d-flex align-items-center min-vh-100 py-5">
-    
+  </head>
+  <body class="d-flex align-items-center min-vh-100 py-5">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
-                
-                <div class="text-center mb-4">
-                    <img src="/static/images/logo.jpg" alt="Logo" 
-                         class="rounded-circle border border-3 border-white shadow-sm mb-3" 
-                         width="80" height="80" 
-                         style="object-fit: cover;">
-                    <h4 class="fw-bold text-dark mb-0">HUSC AI & ROBOTICS</h4>
-                    <p class="text-muted small">Cổng thông tin sự kiện & đào tạo</p>
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+          <div class="text-center mb-4">
+            <img
+              src="/static/images/logo.jpg"
+              alt="Logo"
+              class="rounded-circle border border-3 border-white shadow-sm mb-3"
+              width="80"
+              height="80"
+              style="object-fit: cover"
+            />
+            <h4 class="fw-bold text-dark mb-0">HUSC AI & ROBOTICS</h4>
+            <p class="text-muted small">Cổng thông tin sự kiện & đào tạo</p>
+          </div>
+
+          <div class="card auth-card p-4 bg-white">
+            <div class="card-body">
+              <h5 class="card-title text-center mb-4 fw-bold text-primary">
+                Đăng nhập hệ thống
+              </h5>
+
+              <form
+                hx-post="/api/auth/signin/"
+                hx-trigger="submit"
+                hx-target="#signin-msg"
+                hx-swap="none"
+              >
+                <div class="form-floating mb-3">
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="username"
+                    name="username"
+                    placeholder="name@example.com"
+                    required
+                  />
+                  <label for="username">Email đăng nhập</label>
                 </div>
 
                 <div class="card auth-card p-4 bg-white">
@@ -95,70 +142,117 @@
                     </div>
                 </div>
 
-                <div class="text-center mt-4">
-                    <p class="text-muted small">
-                        Chưa có tài khoản? <a href="#!" class="text-primary text-decoration-none fw-bold">Liên hệ quản trị viên</a>
-                    </p>
+                <div id="signin-msg" class="mb-3"></div>
+
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="rememberMe"
+                      checked
+                    />
+                    <label
+                      class="form-check-label text-secondary small"
+                      for="rememberMe"
+                    >
+                      Ghi nhớ đăng nhập
+                    </label>
+                  </div>
+                  <a
+                    href="#!"
+                    class="text-primary text-decoration-none small fw-medium"
+                    >Quên mật khẩu?</a
+                  >
                 </div>
 
+                <button
+                  type="submit"
+                  class="btn btn-primary w-100 py-2 fw-bold rounded-3"
+                >
+                  <i class="bi bi-box-arrow-in-right me-2"></i> Đăng nhập
+                </button>
+              </form>
             </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <p class="text-muted small">
+              Chưa có tài khoản?
+              <a href="#!" class="text-primary text-decoration-none fw-bold"
+                >Liên hệ quản trị viên</a
+              >
+            </p>
+          </div>
         </div>
+      </div>
     </div>
 
     <script>
-        document.addEventListener("htmx:afterRequest", function(evt) {
-            // Chỉ xử lý sự kiện từ form signin
-            if (evt.detail.elt.getAttribute("hx-post") === "/api/auth/signin/") {
-                
-                if (evt.detail.successful) {
-                    // Thành công: Redirect về trang chủ
-                    window.location.href = "/"; 
-                } else {
-                    // Thất bại: Hiển thị lỗi chuẩn Bootstrap Alert
-                    try {
-                        const xhr = evt.detail.xhr;
-                        let errorMsg = "Đăng nhập thất bại. Vui lòng thử lại.";
-                        
-                        // Cố gắng parse JSON lỗi từ backend
-                        if (xhr.responseText) {
-                            try {
-                                const data = JSON.parse(xhr.responseText);
-                                if (data.detail) errorMsg = data.detail;
-                            } catch(e) { /* Ignore JSON parse error */ }
-                        }
-                        
-                        // Render HTML Bootstrap Alert
-                        const errorHtml = `
+      document.addEventListener("htmx:afterRequest", function (evt) {
+        // Chỉ xử lý sự kiện từ form signin
+        if (evt.detail.elt.getAttribute("hx-post") === "/api/auth/signin/") {
+          if (evt.detail.successful) {
+            // Thành công: Redirect về trang chủ
+            window.location.href = "/";
+          } else {
+            // Thất bại: Hiển thị lỗi chuẩn Bootstrap Alert
+            try {
+              const xhr = evt.detail.xhr;
+              let errorMsg = "Đăng nhập thất bại. Vui lòng thử lại.";
+
+              // Cố gắng parse JSON lỗi từ backend
+              if (xhr.responseText) {
+                try {
+                  const data = JSON.parse(xhr.responseText);
+                  if (data.detail) errorMsg = data.detail;
+                } catch (e) {
+                  /* Ignore JSON parse error */
+                }
+              }
+
+              // Render HTML Bootstrap Alert
+              const errorHtml = `
                             <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
                                 <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
                                 <div>${errorMsg}</div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         `;
-                        document.getElementById("signin-msg").innerHTML = errorHtml;
+              document.getElementById("signin-msg").innerHTML = errorHtml;
 
-                        // Animation lắc nhẹ form để báo hiệu lỗi (Optional UX enhancement)
-                        const card = document.querySelector('.auth-card');
-                        card.style.animation = "shake 0.3s";
-                        setTimeout(() => card.style.animation = "", 300);
-
-                    } catch (e) {
-                        console.error("Lỗi xử lý phản hồi:", e);
-                    }
-                }
+              // Animation lắc nhẹ form để báo hiệu lỗi (Optional UX enhancement)
+              const card = document.querySelector(".auth-card");
+              card.style.animation = "shake 0.3s";
+              setTimeout(() => (card.style.animation = ""), 300);
+            } catch (e) {
+              console.error("Lỗi xử lý phản hồi:", e);
             }
-        });
-    </script>
-    
-    <style>
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
+          }
         }
-    </style>
+      });
+    </script>
 
-</body>
+    <style>
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        50% {
+          transform: translateX(5px);
+        }
+        75% {
+          transform: translateX(-5px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </body>
 </html>

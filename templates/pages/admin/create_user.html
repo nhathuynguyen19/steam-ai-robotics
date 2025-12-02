@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -38,94 +39,106 @@
                                 <i class="bi bi-person-plus-fill me-2"></i>Cấp Tài Khoản Mới
                             </h4>
                             <p class="text-muted small mt-2">Chức năng chỉ dành cho Quản trị viên</p>
+=======
+{% extends "base.html" %}
+{% block title %}Cấp tài khoản | HUSC AI
+& Robotics{% endblock %}
+{% block content %}
+<style>
+</style>
+<div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                        <h4 class="fw-bold text-primary mb-0">
+                            <i class="bi bi-person-plus-fill me-2"></i>Cấp Tài Khoản Mới
+                        </h4>
+                        <p class="text-muted small mt-2">Chức năng chỉ dành cho Quản trị viên</p>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        {% if error %}
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>{{ error }}</div>
+>>>>>>> 26f2de727d001209eb66d983246e112d22698913
                         </div>
-                        
-                        <div class="card-body p-4">
-                            {% if error %}
-                            <div class="alert alert-danger d-flex align-items-center" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                <div>{{ error }}</div>
+                        {% endif %}
+    
+                        {% if success %}
+                        <div class="alert alert-success d-flex align-items-center" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <div>{{ success }}</div>
+                        </div>
+                        {% endif %}
+    
+                        <form method="POST" action="/admin/users/create">
+                            <div class="mb-3">
+                                <label for="full_name" class="form-label fw-medium">Họ và tên</label>
+                                <input type="text" class="form-control" id="full_name" name="full_name" 
+                                        value="{{ form_data.full_name if form_data else '' }}" 
+                                        placeholder="Để trống nếu chưa cập nhật"
+                                        required>
                             </div>
-                            {% endif %}
-        
-                            {% if success %}
-                            <div class="alert alert-success d-flex align-items-center" role="alert">
-                                <i class="bi bi-check-circle-fill me-2"></i>
-                                <div>{{ success }}</div>
+    
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-medium">Email (Gmail) <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                        value="{{ form_data.email if form_data else '' }}" required placeholder="example@gmail.com">
+                                <div class="form-text">Hệ thống chỉ chấp nhận đuôi @gmail.com</div>
                             </div>
-                            {% endif %}
-        
-                            <form method="POST" action="/admin/users/create">
-                                <div class="mb-3">
-                                    <label for="full_name" class="form-label fw-medium">Họ và tên</label>
-                                    <input type="text" class="form-control" id="full_name" name="full_name" 
-                                           value="{{ form_data.full_name if form_data else '' }}" 
-                                           placeholder="Để trống nếu chưa cập nhật">
-                                </div>
-        
-                                <div class="mb-3">
-                                    <label for="email" class="form-label fw-medium">Email (Gmail) <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" id="email" name="email" 
-                                           value="{{ form_data.email if form_data else '' }}" required placeholder="example@gmail.com">
-                                    <div class="form-text">Hệ thống chỉ chấp nhận đuôi @gmail.com</div>
-                                </div>
-        
-                                <div class="mb-3">
-                                    <label for="password" class="form-label fw-medium">Mật khẩu <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="password" name="password" 
-                                               required minlength="8" 
-                                               value="husc1234"> <button class="btn btn-outline-secondary" type="button" onclick="generatePassword()">
-                                            <i class="bi bi-magic"></i> Random
-                                        </button>
-                                    </div>
-                                </div>
-        
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="phone" class="form-label fw-medium">Số điện thoại</label>
-                                        <input type="tel" class="form-control" id="phone" name="phone" pattern="0[0-9]{9}"
-                                               value="{{ form_data.phone if form_data else '' }}" 
-                                               placeholder="0xxxxxxxxx (có thể trống)">
-                                    </div>
-        
-                                    <div class="col-md-6 mb-3">
-                                        <label for="role" class="form-label fw-medium">Vai trò</label>
-                                        <select class="form-select" id="role" name="role">
-                                            <option value="user" {% if form_data and form_data.role == 'user' %}selected{% endif %}>Người dùng (User)</option>
-                                            <option value="admin" {% if form_data and form_data.role == 'admin' %}selected{% endif %}>Quản trị viên (Admin)</option>
-                                        </select>
-                                    </div>
-                                </div>
-        
-                                <div class="d-grid gap-2 mt-4">
-                                    <button type="submit" class="btn btn-primary py-2 fw-bold">
-                                        <i class="bi bi-save me-2"></i>Tạo tài khoản
+    
+                            <div class="mb-3">
+                                <label for="password" class="form-label fw-medium">Mật khẩu <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="password" name="password" 
+                                            required minlength="8" 
+                                            value="husc1234"> <button class="btn btn-outline-secondary" type="button" onclick="generatePassword()">
+                                        <i class="bi bi-magic"></i> Random
                                     </button>
-                                    <a href="/" class="btn btn-light text-muted">Quay lại trang chủ</a>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+    
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label fw-medium">Số điện thoại</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" pattern="0[0-9]{9}"
+                                            value="{{ form_data.phone if form_data else '' }}" 
+                                            placeholder="0xxxxxxxxx"
+                                            required
+                                            >
+                                </div>
+    
+                                <div class="col-md-6 mb-3">
+                                    <label for="role" class="form-label fw-medium">Vai trò</label>
+                                    <select class="form-select" id="role" name="role">
+                                        <option value="user" {% if form_data and form_data.role == 'user' %}selected{% endif %}>Người dùng (User)</option>
+                                        <option value="admin" {% if form_data and form_data.role == 'admin' %}selected{% endif %}>Quản trị viên (Admin)</option>
+                                    </select>
+                                </div>
+                            </div>
+    
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary py-2 fw-bold">
+                                    <i class="bi bi-save me-2"></i>Tạo tài khoản
+                                </button>
+                                <a href="/" class="btn btn-light text-muted">Quay lại trang chủ</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-
-    <footer class="mt-auto">
-        {% include "partials/footer.html" %}
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function generatePassword() {
-            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
-            let password = "";
-            for (let i = 0; i < 12; i++) {
-                password += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            document.getElementById("password").value = password;
-        }
-    </script>
-</body>
-</html>
+</div>
+<script>
+function generatePassword() {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+    let password = "";
+    for (let i = 0; i < 12; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById("password").value = password;
+}
+</script>
+{% endblock %}

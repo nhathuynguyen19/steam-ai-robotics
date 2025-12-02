@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow rounded-4">
+            <div class="card-header bg-white border-bottom pt-4 px-4 pb-0">
+                <h4 class="fw-bold text-primary"><i class="bi bi-person-gear me-2"></i>Chỉnh sửa thông tin</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="/admin/users/{{ target_user.user_id }}/edit/">
+
+                    {% if error %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email (Tên đăng nhập)</label>
+                        <input type="text" class="form-control bg-light" value="{{ target_user.email }}" disabled readonly>
+                        <div class="form-text">Không thể thay đổi email.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Họ và tên</label>
+                        <input type="text" class="form-control" name="full_name" value="{{ target_user.full_name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Vai trò</label>
+                        <select class="form-select" name="role">
+                            <option value="user" {% if target_user.role == 'user' %}selected{% endif %}>Thành viên (User)</option>
+                            <option value="admin" {% if target_user.role == 'admin' %}selected{% endif %}>Quản trị viên (Admin)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mật khẩu mới</label>
+                        <input type="password" class="form-control" name="password" placeholder="Để trống nếu không muốn đổi mật khẩu">
+                    </div>
+
+                    <div class="mb-4 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="statusSwitch" name="status" value="true" {% if target_user.status %}checked{% endif %}>
+                        <label class="form-check-label fw-semibold" for="statusSwitch">Kích hoạt tài khoản</label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary fw-bold">Lưu thay đổi</button>
+                        <a href="/admin/users/" class="btn btn-light text-muted">Hủy bỏ</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -70,7 +70,7 @@ async def render_events_table(
             {"request": request, "events": [], "error": "Vui lòng đăng nhập để xem lịch."}
         )
 
-   # Lấy sự kiện chưa bị xóa
+    # Lấy sự kiện chưa bị xóa
     all_events = db.query(models.Event)\
         .filter(models.Event.status != "deleted")\
         .options(joinedload(models.Event.participants).joinedload(models.UserEvent.user))\

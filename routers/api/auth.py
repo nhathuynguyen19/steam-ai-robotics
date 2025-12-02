@@ -23,7 +23,7 @@ router = APIRouter(
 )
 
 # --- HELPER FUNCTION: Validate & Create First Admin ---
-def create_first_super_admin(db: Session, form_data: OAuth2PasswordRequestForm, background_tasks: BackgroundTasks):
+def create_first_super_admin(db: Session, form_data: OAuth2PasswordRequestForm):
     """
     Hàm này chỉ chạy duy nhất 1 lần khi hệ thống chưa có User nào.
     Nó sẽ tạo tài khoản Super Admin và gửi email xác thực.
@@ -46,36 +46,38 @@ def create_first_super_admin(db: Session, form_data: OAuth2PasswordRequestForm, 
         email=form_data.username,
         hashed_password=hashed_password,
         role=schemas.UserRole.ADMIN.value,
-        status=False, # Chưa kích hoạt, cần verify email
-        full_name="Super Admin"
+        status=True, # THAY ĐỔI: Set True ngay lập tức
+        full_name="Super Admin",
+        phone="0900000000"
     )
     
     try:
         db.add(new_admin)
         db.commit()
         db.refresh(new_admin)
+        return new_admin # THAY ĐỔI: Trả về user thay vì raise Exception
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Lỗi tạo admin: {str(e)}")
 
-    # 3. Send Verification Email
-    verification_token = security.create_access_token(
-        data={"sub": new_admin.email, "type": "verification"},
-        expires_delta=timedelta(hours=24)
-    )
+    # # 3. Send Verification Email
+    # verification_token = security.create_access_token(
+    #     data={"sub": new_admin.email, "type": "verification"},
+    #     expires_delta=timedelta(hours=24)
+    # )
     
-    # Inject task gửi mail vào background
-    background_tasks.add_task(
-        send_verification_email, 
-        email=new_admin.email, 
-        token=verification_token
-    )
+    # # Inject task gửi mail vào background
+    # background_tasks.add_task(
+    #     send_verification_email, 
+    #     email=new_admin.email, 
+    #     token=verification_token
+    # )
     
-    # Dừng quy trình đăng nhập, trả về 201 Created
-    raise HTTPException(
-        status_code=status.HTTP_201_CREATED,
-        detail="Hệ thống đã khởi tạo tài khoản Admin. Vui lòng kiểm tra email để kích hoạt trước khi đăng nhập."
-    )
+    # # Dừng quy trình đăng nhập, trả về 201 Created
+    # raise HTTPException(
+    #     status_code=status.HTTP_201_CREATED,
+    #     detail="Hệ thống đã khởi tạo tài khoản Admin. Vui lòng kiểm tra email để kích hoạt trước khi đăng nhập."
+    # )
 
 # --- MAIN AUTH ROUTES ---
 
@@ -96,15 +98,15 @@ async def signin_for_access_token(
         # Nếu DB rỗng -> Tạo Admin đầu tiên
         user_count = db.query(models.User).count()
         if user_count == 0:
-            # Hàm này sẽ raise Exception để kết thúc request luôn nếu tạo thành công
-            create_first_super_admin(db, form_data, background_tasks)
-        
-        # Nếu DB không rỗng mà tìm không thấy user -> Lỗi đăng nhập
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+            # THAY ĐỔI: Gán user mới tạo vào biến user để code chạy tiếp xuống dưới
+            user = create_first_super_admin(db, form_data)
+        else:
+            # Nếu DB không rỗng mà tìm không thấy user -> Lỗi đăng nhập
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
     # 3. User tồn tại -> Verify Password
     if not security.verify_password(form_data.password, user.hashed_password):

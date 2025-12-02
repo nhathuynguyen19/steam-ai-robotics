@@ -1,0 +1,121 @@
+{% extends "base.html" %} {% block title %}Chỉnh sửa sự kiện | HUSC AI &
+Robotics{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow border-0 rounded-4">
+      <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+        <h4 class="fw-bold text-primary mb-0">
+          <i class="bi bi-pencil-square me-2"></i>Cập nhật sự kiện
+        </h4>
+      </div>
+      <div class="card-body p-4">
+        {% if error %}
+        <div
+          class="alert alert-danger rounded-3 d-flex align-items-center"
+          role="alert"
+        >
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <div>{{ error }}</div>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/events/{{ event.event_id }}/edit">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Tên sự kiện</label>
+            <input
+              type="text"
+              class="form-control"
+              name="name"
+              value="{{ event.name }}"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Trường học / Đơn vị</label>
+            <input
+              type="text"
+              class="form-control"
+              name="school_name"
+              value="{{ event.school_name or '' }}"
+            />
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Ngày diễn ra</label>
+              <input
+                type="date"
+                class="form-control"
+                name="day_start"
+                value="{{ event.day_start }}"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Số lượng học sinh</label>
+              <input
+                type="number"
+                class="form-control"
+                name="number_of_student"
+                value="{{ event.number_of_student }}"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">Tiết bắt đầu</label>
+              <input
+                type="number"
+                class="form-control"
+                name="start_period"
+                min="1"
+                max="12"
+                value="{{ event.start_period }}"
+                required
+              />
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Tiết kết thúc</label>
+              <input
+                type="number"
+                class="form-control"
+                name="end_period"
+                min="1"
+                max="12"
+                value="{{ event.end_period }}"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold"
+              >Giới hạn người đăng ký (Giảng viên/TA)</label
+            >
+            <input
+              type="number"
+              class="form-control"
+              name="max_user_joined"
+              min="1"
+              value="{{ event.max_user_joined }}"
+              required
+            />
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary fw-bold py-2">
+              Lưu thay đổi
+            </button>
+            <a href="/events" class="btn btn-light text-muted fw-semibold"
+              >Hủy bỏ</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

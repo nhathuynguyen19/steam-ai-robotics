@@ -1,3 +1,4 @@
+# python phien ban 3.12.3
 fastapi
 gunicorn
 uvicorn[standard]

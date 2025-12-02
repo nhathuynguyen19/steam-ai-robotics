@@ -1,177 +1,161 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tổng quan | HUSC AI & Robotics</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-        }
-        
-        .stat-card {
-            transition: transform 0.2s;
-            border: none;
-            border-radius: 12px;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-        }
+{% extends "base.html" %} {% block title %}Tổng quan | HUSC AI & Robotics{%
+endblock %} {% block content %}
+<style>
+  .stat-card {
+    transition: transform 0.2s;
+    border: none;
+    border-radius: 12px;
+  }
 
-        .icon-box {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-        }
-    </style>
-</head>
-<body style="padding-top: 80px;"> 
-  
-  <header>
-    {% include "/partials/navbar.html" %}
-  </header>
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
 
-  <main class="container py-4" style="min-height: 85vh;">
-      
-      <div class="row mb-4">
-          <div class="col-12">
-              <div class="bg-white p-4 rounded-3 shadow-sm border">
-                  <h2 class="fw-bold text-primary mb-2">Xin chào, {{ user.full_name if user.full_name else 'Admin' }}! 👋</h2>
-                  <p class="text-muted mb-0">Đây là trang tổng quan hệ thống quản lý sự kiện HUSC AI & Robotics.</p>
-              </div>
+  .icon-box {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+  }
+</style>
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="bg-white p-4 rounded-3 shadow-sm border">
+      <h2 class="fw-bold text-primary mb-2">
+        Xin chào, {{ user.full_name if user.full_name else 'Admin' }}! 👋
+      </h2>
+      <p class="text-muted mb-0">
+        Trang phục vụ một số thống kê chung và các thao tác nhanh
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card stat-card shadow-sm h-100">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="text-muted fw-bold text-uppercase mb-1">
+              Sự kiện sắp tới
+            </h6>
+            <h2 class="fw-bold mb-0 text-dark">{{upcoming_count}}</h2>
           </div>
+          <div class="icon-box bg-primary bg-opacity-10 text-primary">
+            <i class="bi bi-calendar-event fs-4"></i>
+          </div>
+        </div>
+        {% if upcoming_count > 0%}
+        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">
+          <i class="bi bi-arrow-up-short"></i> Đang mở đăng ký
+        </span>
+        {% else %}
+        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill">
+          <i class="bi bi-arrow-down-short"></i> Chưa có sự kiện nào
+        </span>
+        {% endif %}
       </div>
+    </div>
+  </div>
 
-      <div class="row g-4 mb-4">
-          <div class="col-md-4">
-              <div class="card stat-card shadow-sm h-100">
-                  <div class="card-body p-4">
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                          <div>
-                              <h6 class="text-muted fw-bold text-uppercase mb-1">Sự kiện sắp tới</h6>
-                              <h2 class="fw-bold mb-0 text-dark">3</h2> </div>
-                          <div class="icon-box bg-primary bg-opacity-10 text-primary">
-                              <i class="bi bi-calendar-event fs-4"></i>
-                          </div>
-                      </div>
-                      <span class="badge bg-success bg-opacity-10 text-success rounded-pill">
-                          <i class="bi bi-arrow-up-short"></i> Đang mở đăng ký
-                      </span>
-                  </div>
-              </div>
+  <div class="col-md-4">
+    <div class="card stat-card shadow-sm h-100">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="text-muted fw-bold text-uppercase mb-1">Thành viên</h6>
+            <h2 class="fw-bold mb-0 text-dark">{{total_users}}</h2>
           </div>
-
-          <div class="col-md-4">
-              <div class="card stat-card shadow-sm h-100">
-                  <div class="card-body p-4">
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                          <div>
-                              <h6 class="text-muted fw-bold text-uppercase mb-1">Thành viên</h6>
-                              <h2 class="fw-bold mb-0 text-dark">128</h2> </div>
-                          <div class="icon-box bg-success bg-opacity-10 text-success">
-                              <i class="bi bi-people fs-4"></i>
-                          </div>
-                      </div>
-                      <span class="text-muted small">Sinh viên & Giảng viên</span>
-                  </div>
-              </div>
+          <div class="icon-box bg-success bg-opacity-10 text-success">
+            <i class="bi bi-people fs-4"></i>
           </div>
-
-          <div class="col-md-4">
-              <div class="card stat-card shadow-sm h-100">
-                  <div class="card-body p-4">
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                          <div>
-                              <h6 class="text-muted fw-bold text-uppercase mb-1">Đã tổ chức</h6>
-                              <h2 class="fw-bold mb-0 text-dark">45</h2> </div>
-                          <div class="icon-box bg-warning bg-opacity-10 text-warning">
-                              <i class="bi bi-check-circle fs-4"></i>
-                          </div>
-                      </div>
-                      <span class="text-muted small">Trong năm học này</span>
-                  </div>
-              </div>
-          </div>
+        </div>
+        <span class="text-muted small">Sinh viên & Giảng viên</span>
       </div>
+    </div>
+  </div>
 
-      <div class="row">
-          <div class="col-lg-8 mb-4">
-              <div class="card shadow-sm border-0">
-                  <div class="card-header bg-white border-bottom py-3">
-                      <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Hoạt động gần đây</h5>
-                  </div>
-                  <div class="card-body p-0">
-                      <div class="list-group list-group-flush">
-                          <a href="#" class="list-group-item list-group-item-action p-3">
-                              <div class="d-flex w-100 justify-content-between">
-                                  <h6 class="mb-1 fw-semibold">Seminar: AI trong Y tế</h6>
-                                  <small class="text-muted">3 ngày trước</small>
-                              </div>
-                              <p class="mb-1 text-secondary small">Đã cập nhật danh sách diễn giả.</p>
-                          </a>
-                          <a href="#" class="list-group-item list-group-item-action p-3">
-                              <div class="d-flex w-100 justify-content-between">
-                                  <h6 class="mb-1 fw-semibold">Workshop Robotics Basic</h6>
-                                  <small class="text-muted">1 tuần trước</small>
-                              </div>
-                              <p class="mb-1 text-secondary small">Tạo sự kiện mới thành công.</p>
-                          </a>
-                          </div>
-                  </div>
-                  <div class="card-footer bg-white text-center py-2">
-                      <a href="/events" class="text-decoration-none small fw-bold">Xem tất cả sự kiện <i class="bi bi-arrow-right"></i></a>
-                  </div>
-              </div>
+  <div class="col-md-4">
+    <div class="card stat-card shadow-sm h-100">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="text-muted fw-bold text-uppercase mb-1">Tổng số</h6>
+            <h2 class="fw-bold mb-0 text-dark">{{past_count}}</h2>
           </div>
-
-          <div class="col-lg-4">
-              <div class="card shadow-sm border-0 mb-4">
-                  <div class="card-header bg-white border-bottom py-3">
-                      <h5 class="mb-0 fw-bold">Thao tác nhanh</h5>
-                  </div>
-                  <div class="card-body">
-                      <div class="d-grid gap-2">
-                          <a href="/events/create" class="btn btn-primary">
-                              <i class="bi bi-plus-lg me-2"></i>Tạo sự kiện mới
-                          </a>
-                          <button class="btn btn-outline-secondary">
-                              <i class="bi bi-file-earmark-arrow-down me-2"></i>Xuất báo cáo
-                          </button>
-                          <button class="btn btn-outline-secondary">
-                              <i class="bi bi-gear me-2"></i>Cài đặt hệ thống
-                          </button>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="card shadow-sm border-0 bg-primary text-white">
-                  <div class="card-body">
-                      <h5 class="card-title"><i class="bi bi-info-circle me-2"></i>Thông báo</h5>
-                      <p class="card-text small opacity-75">Hệ thống sẽ bảo trì vào lúc 22:00 Chủ Nhật tuần này để nâng cấp tính năng điểm danh QR Code.</p>
-                  </div>
-              </div>
+          <div class="icon-box bg-warning bg-opacity-10 text-warning">
+            <i class="bi bi-check-circle fs-4"></i>
           </div>
+        </div>
+        <span class="text-muted small">Buổi trải nghiệm</span>
       </div>
+    </div>
+  </div>
+</div>
 
-  </main>
+<div class="row">
+  <div class="col-lg-8 mb-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white border-bottom py-3">
+        <h5 class="mb-0 fw-bold">
+          <i class="bi bi-clock-history me-2 text-primary"></i>Hoạt động gần đây
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+          {% if recent_past_events %} {% for event in recent_past_events %}
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1 fw-semibold">{{event.name}}</h6>
+              <!-- <small class="text-muted">3 ngày trước</small> -->
+            </div>
+            <p class="mb-1 text-secondary small">{{event.school_name}}</p>
+          </a>
+          {% endfor %} {% else %} {% endif %}
+        </div>
+      </div>
+      <div class="card-footer bg-white text-center py-2">
+        <a href="/events" class="text-decoration-none small fw-bold"
+          >Xem tất cả sự kiện <i class="bi bi-arrow-right"></i
+        ></a>
+      </div>
+    </div>
+  </div>
 
-  <footer class="mt-auto">
-      {% include "partials/footer.html" %}
-  </footer>
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 mb-4">
+      {% if user.role == "admin" %}
+      <div class="card-header bg-white border-bottom py-3">
+        <h5 class="mb-0 fw-bold">Thao tác nhanh</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="/events/create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Tạo sự kiện mới
+          </a>
+          <button class="btn btn-outline-secondary">
+            <i class="bi bi-file-earmark-arrow-down me-2"></i>Xuất báo cáo
+          </button>
+          <button class="btn btn-outline-secondary">
+            <i class="bi bi-gear me-2"></i>Cài đặt hệ thống
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <div class="card shadow-sm border-0 bg-primary text-white">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-info-circle me-2"></i>Thông báo
+        </h5>
+        <p class="card-text small opacity-75">Chưa có thông báo</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

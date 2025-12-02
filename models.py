@@ -8,15 +8,22 @@ class User(Base):
     __tablename__ = "users"
 
     user_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    full_name = Column(String, nullable=True)
+    full_name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    phone = Column(String, unique=True, index=True, nullable=True)
+    phone = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     status = Column(Boolean, default=False) # True: Active
     role = Column(String, default='user')  # 'user', 'admin'
     name_bank = Column(String, nullable=True)
     bank_number = Column(String, nullable=True)
     token_version = Column(Integer, default=0)
+    is_deleted = Column(Boolean, default=False)
+    # Lưu ID của người đã tạo ra user này (Self-referencing Foreign Key)
+    created_by = Column(Integer, ForeignKey("users.user_id"), nullable=True) 
+    
+    # Relationship để truy cập object người tạo dễ dàng (optional)
+    creator = relationship("User", remote_side=[user_id]) 
+    # ---------------------
 
     # Quan hệ ngược lại bảng user_event
     events = relationship("UserEvent", back_populates="user")

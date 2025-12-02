@@ -1,0 +1,119 @@
+{% extends "base.html" %} {% block title %}Sự kiện | HUSC AI & Robotics{%
+endblock %} {% block content %}
+<style>
+  /* Custom Tab/Pill Style */
+  .nav-pills-custom {
+    background-color: #fff;
+    padding: 0.5rem;
+    border-radius: 50rem; /* Fully rounded */
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    display: inline-flex;
+    border: 1px solid #dee2e6;
+  }
+
+  .nav-pills-custom .nav-link {
+    color: #6c757d;
+    font-weight: 600;
+    border-radius: 50rem;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .nav-pills-custom .nav-link:hover {
+    color: #0d6efd;
+    background-color: #f1f3f5;
+  }
+
+  .nav-pills-custom .nav-link.active {
+    background-color: #0d6efd; /* Primary Blue */
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+  }
+
+  /* Active color variations based on context */
+  .nav-link.active[hx-get*="ongoing"] {
+    background-color: #dc3545; /* Red for Ongoing */
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+  }
+  .nav-link.active[hx-get*="finished"] {
+    background-color: #198754; /* Green for Finished */
+    box-shadow: 0 2px 4px rgba(25, 135, 84, 0.3);
+  }
+</style>
+<div class="row align-items-center mb-4">
+  <div class="col-md-6">
+    <h2 class="fw-bold text-dark mb-1">Sự kiện & Hoạt động</h2>
+    <p class="text-muted mb-0">
+      Theo dõi lịch trình các lớp học, kỳ thi và sự kiện quan trọng.
+    </p>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center mb-4">
+  <div class="nav-pills-custom">
+    <ul class="nav">
+      <li class="nav-item">
+        <a
+          class="nav-link mx-1 {% if tab == 'upcoming' %}active{% endif %}"
+          style="cursor: pointer"
+          hx-get="/partials/events-table?tab=upcoming"
+          hx-target="#events-content-area"
+          hx-swap="innerHTML"
+          hx-push-url="?tab=upcoming"
+          onclick="setActiveTab(this)"
+        >
+          <i class="bi bi-calendar-event me-2"></i>Sắp diễn ra
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a
+          class="nav-link mx-1 {% if tab == 'ongoing' %}active{% endif %}"
+          style="cursor: pointer"
+          hx-get="/partials/events-table?tab=ongoing"
+          hx-target="#events-content-area"
+          hx-swap="innerHTML"
+          hx-push-url="?tab=ongoing"
+          onclick="setActiveTab(this)"
+        >
+          <i class="bi bi-broadcast me-2"></i>Đang diễn ra
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a
+          class="nav-link mx-1 {% if tab == 'finished' %}active{% endif %}"
+          style="cursor: pointer"
+          hx-get="/partials/events-table?tab=finished"
+          hx-target="#events-content-area"
+          hx-swap="innerHTML"
+          hx-push-url="?tab=finished"
+          onclick="setActiveTab(this)"
+        >
+          <i class="bi bi-check-all me-2"></i>Đã kết thúc
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div
+  id="events-content-area"
+  hx-get="/partials/events-table?tab={{ tab }}"
+  hx-trigger="load, event_updated from:body"
+  hx-swap="innerHTML"
+>
+  <div
+    class="d-flex flex-column align-items-center justify-content-center py-5 my-5"
+  >
+    <div
+      class="spinner-border text-primary"
+      style="width: 3rem; height: 3rem"
+      role="status"
+    >
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-secondary fw-medium">Đang tải dữ liệu sự kiện...</p>
+  </div>
+</div>
+{% endblock %}

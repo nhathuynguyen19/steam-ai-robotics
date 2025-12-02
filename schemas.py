@@ -100,7 +100,7 @@ class UserCreateAdmin(BaseModel):
     full_name: Optional[str] = None
     role: str = UserRole.USER.value
     status: bool = True 
-    phone: Optional[str] = None 
+    phone: Optional[str] = None
 
     @field_validator('role')
     @classmethod

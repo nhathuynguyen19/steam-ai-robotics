@@ -191,6 +191,7 @@ def join_event(
     participant_count = db.query(models.UserEvent).filter(
         models.UserEvent.event_id == event_id
     ).count()
+    
     if participant_count >= event.max_user_joined:
         raise HTTPException(status_code=400, detail="Event has reached maximum number of participants")
 
@@ -287,3 +288,39 @@ def attend_event(
     db.commit()
     
     return Response(status_code=200, headers={"HX-Trigger": "event_updated"})
+
+@router.post("/{event_id}/lock")
+async def lock_event(
+    event_id: int,
+    response: Response,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(security.get_current_admin_from_cookie) # Chỉ Admin được phép
+):
+    event = db.query(models.Event).filter(models.Event.event_id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sự kiện")
+    
+    event.is_locked = True
+    db.commit()
+    
+    # Gửi tín hiệu để HTMX refresh lại bảng
+    response.headers["HX-Trigger"] = "event_updated"
+    return {"message": "Đã khóa sự kiện"}
+
+# --- 2. API Mở khóa sự kiện ---
+@router.post("/{event_id}/unlock")
+async def unlock_event(
+    event_id: int,
+    response: Response,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(security.get_current_admin_from_cookie)
+):
+    event = db.query(models.Event).filter(models.Event.event_id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sự kiện")
+    
+    event.is_locked = False
+    db.commit()
+    
+    response.headers["HX-Trigger"] = "event_updated"
+    return {"message": "Đã mở khóa sự kiện"}

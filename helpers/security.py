@@ -22,7 +22,7 @@ RESET_PASSWORD_EXPIRE_MINUTES = 15
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/signin/")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/signin/", auto_error=False)
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -40,14 +40,35 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(database.get_db)):
+async def get_current_user(request: Request,
+                           token: Annotated[str | None, Depends(oauth2_scheme)], 
+                           db: Session = Depends(database.get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
+    # --- LOGIC MỚI: Ưu tiên Header -> Nếu không có thì lấy Cookie ---
+    token_to_validate = token # Mặc định lấy từ Header (OAuth2PasswordBearer)
+
+    if not token_to_validate:
+        # Thử lấy từ Cookie
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            # Xử lý prefix "Bearer " nếu có trong cookie
+            if cookie_token.startswith("Bearer "):
+                token_to_validate = cookie_token.split(" ")[1]
+            else:
+                token_to_validate = cookie_token
+    
+    # Nếu tìm cả 2 nơi đều không có Token -> Lỗi
+    if not token_to_validate:
+        raise credentials_exception
+    # -------------------------------------------------------------
+    
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token_to_validate, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub") # Token chứa email
         token_version: int = payload.get("v") # Lấy version từ token
         
