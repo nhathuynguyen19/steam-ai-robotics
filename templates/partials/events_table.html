@@ -62,12 +62,24 @@
             >
               Hành Động
             </th>
+            
+            {# Bắt đầu thêm cột Admin Action - để đảm bảo đủ 8 cột #}
+            {% if user and user.role == 'admin' %}
+            <th
+              scope="col"
+              class="text-secondary text-uppercase small fw-bold py-3 text-center"
+              style="min-width: 120px"
+            >
+              Admin
+            </th>
+            {% endif %}
+            {# Kết thúc thêm cột Admin Action #}
           </tr>
         </thead>
         <tbody id="events-table-body" class="border-top-0">
           {# --- EMPTY STATE: Trạng thái trống --- #} {% if not events %}
           <tr>
-            <td colspan="7" class="text-center py-5" style="height: 250px">
+            <td colspan="8" class="text-center py-5" style="height: 250px">
               <div
                 class="d-flex flex-column align-items-center justify-content-center text-muted opacity-75"
               >
@@ -169,18 +181,20 @@
                     class="btn btn-outline-danger border-end-0"
                     hx-post="/api/events/{{ event.event_id }}/leave/"
                     hx-confirm="Bạn chắc chắn muốn hủy tham gia sự kiện này chứ?"
-                    hx-target="#events-table"
-                    hx-swap="none"
+                    hx-target="#events-list-container"
+                    hx-swap="outerHTML"
                     title="Hủy đăng ký"
                   >
                     <i class="bi bi-x-lg"></i>
                   </button>
-                  {% endif %} {# Nút Điểm danh #} {% if event.is_ended %}
+                  {% endif %} 
+                  {# Nút Điểm danh #} 
+                  {% if event.is_ended %}
                   <button
                     class="btn btn-primary"
                     hx-post="/api/events/{{ event.event_id }}/attend/"
-                    hx-target="#events-table"
-                    hx-swap="none"
+                    hx-target="#events-list-container"
+                    hx-swap="outerHTML"
                   >
                     <i class="bi bi-qr-code-scan me-1"></i> Điểm danh
                   </button>
@@ -191,72 +205,77 @@
                   {% endif %}
                 </div>
 
-                {# CASE 3: Chưa tham gia #} {% else %} {% if event.is_locked and
-                not event.is_ended %}
-                <span
-                  class="badge bg-secondary opacity-50 rounded-pill px-3 py-2"
-                >
-                  <i class="bi bi-lock-fill me-1"></i> Đã khóa
-                </span>
-                {% elif event.is_full and not event.is_ended %}
-                <span
-                  class="badge bg-warning text-dark bg-opacity-25 border border-warning rounded-pill px-3 py-2"
-                >
-                  <i class="bi bi-person-x-fill me-1"></i> Đã đầy
-                </span>
-                {% else %} {% if not event.is_ended %}
-                <div class="dropdown">
-                  <button
-                    class="btn btn-sm btn-outline-primary fw-bold dropdown-toggle rounded-pill px-3"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
+                {# CASE 3: Chưa tham gia #} 
+                {% else %} 
+                  {% if event.is_locked and not event.is_ended %}
+                  <span
+                    class="badge bg-secondary opacity-50 rounded-pill px-3 py-2"
                   >
-                    Đăng ký ngay
-                  </button>
-                  <ul
-                    class="dropdown-menu dropdown-menu-end shadow border-0 mt-1"
+                    <i class="bi bi-lock-fill me-1"></i> Đã khóa
+                  </span>
+                  {% elif event.is_full and not event.is_ended %}
+                  <span
+                    class="badge bg-warning text-dark bg-opacity-25 border border-warning rounded-pill px-3 py-2"
                   >
-                    <li>
-                      <h6 class="dropdown-header text-uppercase small fw-bold">
-                        Chọn vai trò
-                      </h6>
-                    </li>
-                    <li>
-                      <button
-                        class="dropdown-item d-flex align-items-center py-2"
-                        hx-post="/api/events/{{ event.event_id }}/join/"
-                        hx-vals='{"role": "instructor"}'
-                        hx-target="#events-table"
-                        hx-swap="none"
-                      >
-                        <i class="bi bi-person-video3 me-2 text-primary"></i>
-                        <span>Đứng lớp (Instructor)</span>
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        class="dropdown-item d-flex align-items-center py-2"
-                        hx-post="/api/events/{{ event.event_id }}/join/"
-                        hx-vals='{"role": "ta"}'
-                        hx-target="#events-table"
-                        hx-swap="none"
-                      >
-                        <i class="bi bi-person-check me-2 text-success"></i>
-                        <span>Hỗ trợ (TA)</span>
-                      </button>
-                    </li>
-                  </ul>
-                </div> 
-                {% else %}
-                <span class="text-muted small fst-italic">Đã kết thúc</span>
-                {% endif %} {% endif %} {% endif %}
+                    <i class="bi bi-person-x-fill me-1"></i> Đã đầy
+                  </span>
+                  {% else %} {% if not event.is_ended %}
+                  <div class="dropdown">
+                    <button
+                      class="btn btn-sm btn-outline-primary fw-bold dropdown-toggle rounded-pill px-3"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      Đăng ký ngay
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow border-0 mt-1"
+                    >
+                      <li>
+                        <h6 class="dropdown-header text-uppercase small fw-bold">
+                          Chọn vai trò
+                        </h6>
+                      </li>
+                      <li>
+                        <button
+                          class="dropdown-item d-flex align-items-center py-2"
+                          hx-post="/api/events/{{ event.event_id }}/join/"
+                          hx-vals='{"role": "instructor"}'
+                          hx-target="#events-list-container"
+                          hx-swap="outerHTML"
+                        >
+                          <i class="bi bi-person-video3 me-2 text-primary"></i>
+                          <span>Đứng lớp (Instructor)</span>
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          class="dropdown-item d-flex align-items-center py-2"
+                          hx-post="/api/events/{{ event.event_id }}/join/"
+                          hx-vals='{"role": "ta"}'
+                          hx-target="#events-list-container"
+                          hx-swap="outerHTML"
+                        >
+                          <i class="bi bi-person-check me-2 text-success"></i>
+                          <span>Hỗ trợ (TA)</span>
+                        </button>
+                      </li>
+                    </ul>
+                  </div> 
+                  {% else %}
+                  <span class="text-muted small fst-italic">Đã kết thúc</span>
+                  {% endif %} 
+                {% endif %} 
+              {% endif %}
               </div>
             </td>
+            
+            {# 8. Cột Admin Action #}
+            {% if user and user.role == 'admin' %}
             <td class="text-center">
               <div class="d-flex justify-content-center align-items-center">
-                {% if user and user.role == 'admin' %} {# --- Nút Sửa (Code cũ)
-                --- #}
+                {# Nút Sửa #}
                 <a
                   href="/events/{{ event.event_id }}/edit"
                   class="btn btn-outline-primary btn-sm me-2 shadow-sm"
@@ -265,31 +284,46 @@
                   <i class="bi bi-pencil-square"></i>
                 </a>
 
-                {# --- [MỚI] Logic Nút Khóa / Mở khóa --- #} {% if
-                event.is_locked %}
+                {# Logic Nút Khóa / Mở khóa #}
+                {% if event.is_locked %}
                 <button
                   class="btn btn-outline-secondary btn-sm shadow-sm me-2"
                   title="Mở khóa đăng ký"
                   hx-post="/api/events/{{ event.event_id }}/unlock"
-                  hx-target="#events-table"
-                  hx-swap="none"
+                  hx-target="#events-list-container"
+                  hx-swap="outerHTML"
                 >
                   <i class="bi bi-unlock-fill"></i>
                 </button>
-                {% else %} {% if not event.is_ended %}
+                {% else %} 
+                  {% if not event.is_ended %}
+                  <button
+                    class="btn btn-outline-warning btn-sm shadow-sm me-2"
+                    title="Khóa đăng ký (Không cho tham gia nữa)"
+                    hx-confirm="Bạn có chắc chắn muốn KHÓA sự kiện này? Sinh viên sẽ không thể đăng ký tham gia được nữa."
+                    hx-post="/api/events/{{ event.event_id }}/lock"
+                    hx-target="#events-list-container"
+                    hx-swap="outerHTML"
+                  >
+                    <i class="bi bi-lock-fill"></i>
+                  </button>
+                  {% endif %} 
+                {% endif %}
+                
+                {# Nút Xóa (Soft Delete) #}
                 <button
-                  class="btn btn-outline-warning btn-sm shadow-sm me-2"
-                  title="Khóa đăng ký (Không cho tham gia nữa)"
-                  hx-confirm="Bạn có chắc chắn muốn KHÓA sự kiện này? Sinh viên sẽ không thể đăng ký tham gia được nữa."
-                  hx-post="/api/events/{{ event.event_id }}/lock"
-                  hx-target="#events-table"
-                  hx-swap="none"
+                    class="btn btn-outline-danger btn-sm shadow-sm"
+                    title="Xóa sự kiện (Soft Delete)"
+                    hx-delete="/api/admin/events/{{ event.event_id }}"
+                    hx-confirm="CẢNH BÁO: Bạn có chắc chắn muốn XÓA sự kiện '{{ event.name }}'? Dữ liệu sẽ bị ẩn khỏi hệ thống."
+                    hx-target="closest tr"
+                    hx-swap="none"
                 >
-                  <i class="bi bi-lock-fill"></i>
+                    <i class="bi bi-trash"></i>
                 </button>
-                {% endif %} {% endif %} {% endif %}
               </div>
             </td>
+            {% endif %}
           </tr>
           {% endfor %}
         </tbody>

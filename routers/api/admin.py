@@ -1,9 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import List
 import database, models, schemas
 import helpers.security as security 
 from datetime import datetime
+from fastapi.responses import HTMLResponse, RedirectResponse # <--- Thêm RedirectResponse
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 # Tạo Router riêng, prefix là /admin
 # dependencies=[Depends(auth.get_current_admin_user)] đảm bảo TẤT CẢ các API trong này đều bắt buộc quyền Admin
@@ -137,3 +143,33 @@ async def delete_user(
     db.commit()
     
     return
+
+# ... (các code hiện tại)
+
+# [THÊM ĐOẠN NÀY VÀO CUỐI FILE HOẶC TRONG CLASS ROUTER]
+@router.delete("/events/{event_id}")
+async def soft_delete_event(
+    request: Request,
+    event_id: int,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(security.get_current_admin_from_cookie) # Chỉ Admin được xóa
+):
+    event = db.query(models.Event).filter(models.Event.event_id == event_id).first()
+    
+    if not event:
+        raise HTTPException(status_code=404, detail="Sự kiện không tồn tại")
+        
+    # Logic Soft Delete: Đổi trạng thái thành 'deleted'
+    event.status = schemas.EventStatus.DELETED.value
+    
+    # (Tùy chọn) Nếu muốn ẩn ngay lập tức khỏi danh sách
+    # event.is_active = False 
+    
+    db.commit()
+    db.refresh(event)
+    
+    return templates.TemplateResponse("pages/events.html", {
+            "request": request,
+            "user": current_user,
+            "event": event
+        })
