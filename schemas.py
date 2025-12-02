@@ -154,7 +154,39 @@ class UserResponse(UserBase):
     
     class Config:
         from_attributes = True    
-
+        
+class UserRequestProfile(BaseModel):
+    full_name: str = None
+    # email: EmailStr
+    phone: str = Field(None, pattern=r"^0\d{9}$") # Regex: Bắt đầu bằng 0, 10 số
+    name_bank: Optional[str] = None
+    bank_number: Optional[str] = None
+    password: str = Field(..., min_length=8)
+    re_password: str = Field(..., min_length=8)
+    
+    # @field_validator('email')
+    # @classmethod
+    # def validate_gmail(cls, v: str):
+    #     if not v.endswith("@gmail.com"):
+    #         raise ValueError("Hệ thống chỉ chấp nhận tài khoản Gmail (@gmail.com)")
+    #     return v
+    
+    @field_validator('password')
+    def validate_password_strength(cls, v: str | None):
+        # Nếu không nhập gì hoặc là None thì bỏ qua (nghĩa là không đổi pass)
+        if not v or v.strip() == "":
+            return None
+            
+        if len(v) < 8:
+             raise ValueError('Mật khẩu phải có ít nhất 8 ký tự')
+        if not re.search(r"\d", v):
+            raise ValueError('Mật khẩu phải chứa ít nhất một chữ số')
+        if not re.search(r"[a-zA-Z]", v):
+            raise ValueError('Mật khẩu phải chứa ít nhất một chữ cái')
+        return v
+    
+    class Config:
+        from_attributes = True
 
 # ==========================================
 # 4. EVENT SCHEMAS

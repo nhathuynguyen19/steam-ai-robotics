@@ -4,6 +4,12 @@ from typing import List
 import database, models, schemas
 import helpers.security as security 
 from datetime import datetime
+import pytz
+
+VN_TZ = pytz.timezone("Asia/Ho_Chi_Minh")
+
+def now_vn():
+    return datetime.now(VN_TZ)
 
 # Tạo Router riêng, prefix là /admin
 # dependencies=[Depends(auth.get_current_admin_user)] đảm bảo TẤT CẢ các API trong này đều bắt buộc quyền Admin
@@ -130,8 +136,8 @@ async def delete_user(
 
     # [THAY ĐỔI] Thay vì db.delete(), ta update trạng thái
     user_to_delete.is_deleted = True
-    user_to_delete.email += str(datetime.now())
-    user_to_delete.phone += str(datetime.now())
+    user_to_delete.email += str(now_vn())
+    user_to_delete.phone += str(now_vn())
     user_to_delete.status = False # Tắt kích hoạt luôn để không đăng nhập được
     
     db.commit()

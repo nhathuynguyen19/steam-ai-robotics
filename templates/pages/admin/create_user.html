@@ -32,10 +32,10 @@
     
                         <form method="POST" action="/admin/users/create">
                             <div class="mb-3">
-                                <label for="full_name" class="form-label fw-medium">Họ và tên</label>
+                                <label for="full_name" class="form-label fw-medium">Họ và tên <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="full_name" name="full_name" 
                                         value="{{ form_data.full_name if form_data else '' }}" 
-                                        placeholder="Để trống nếu chưa cập nhật"
+                                        placeholder="VD: Nguyễn Văn A"
                                         required>
                             </div>
     
@@ -59,7 +59,7 @@
     
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="phone" class="form-label fw-medium">Số điện thoại</label>
+                                    <label for="phone" class="form-label fw-medium">Số điện thoại <span class="text-danger">*</span></label>
                                     <input type="tel" class="form-control" id="phone" name="phone" pattern="0[0-9]{9}"
                                             value="{{ form_data.phone if form_data else '' }}" 
                                             placeholder="0xxxxxxxxx"

@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+{% block content %}
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-lg-6 col-md-8">
@@ -7,109 +8,58 @@
           <h4 class="fw-bold text-primary mb-3">
             <i class="bi bi-person-circle me-2"></i>Hồ sơ cá nhân
           </h4>
-          <button
-              class="btn btn-sm btn-primary mb-3"
-              id="toggle-form"
-              title="Edit"
-              type="button"
-            >
-              <i class="bi bi-pencil"></i>
-            </button>
+          <button class="btn btn-sm btn-outline-primary mb-3" id="toggle-form" type="button">
+            <i class="bi bi-pencil me-1"></i> Chỉnh sửa
+          </button>
         </div>
 
         <div class="card-body p-4">
           {% if success %}
-          <div
-            class="alert alert-success d-flex align-items-center rounded-3 mb-4"
-            role="alert"
-          >
+          <div class="alert alert-success d-flex align-items-center rounded-3 mb-4" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>
             <div>{{ success }}</div>
           </div>
-          {% endif %} {% if error %}
-          <div
-            class="alert alert-danger d-flex align-items-center rounded-3 mb-4"
-            role="alert"
-          >
+          {% endif %} 
+          {% if error %}
+          <div class="alert alert-danger d-flex align-items-center rounded-3 mb-4" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
             <div>{{ error }}</div>
           </div>
-          {% endif %}
+          {% endif %} 
 
           <form id="my-form" method="POST" action="/profile">
             <div class="mb-4">
-              <label
-                class="form-label fw-semibold text-secondary small text-uppercase"
-                >Tài khoản Email</label
-              >
+              <label class="form-label fw-semibold text-secondary small text-uppercase">Tài khoản Email</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0"
-                  ><i class="bi bi-envelope"></i
-                ></span>
-                <input
-                  type="text"
-                  class="form-control bg-light border-start-0"
-                  value="{{ user.email }}"
-                  disabled
-                  readonly
-                />
-              </div>
-              <div class="form-text">
-                Bạn không thể thay đổi địa chỉ email đăng nhập.
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
+                <input type="text" class="form-control bg-light border-start-0" value="{{ user.email }}" disabled readonly />
               </div>
             </div>
 
             <div class="mb-4">
               <label class="form-label fw-semibold">Họ và tên hiển thị</label>
-              <input
-                type="text"
-                class="form-control"
-                name="full_name"
-                value="{{ user.full_name }}"
-                required
-                disabled
-              />
+              <input type="text" class="form-control" name="full_name" value="{{ user.full_name }}" required disabled />
             </div>
 
             <div class="mb-4">
               <label class="form-label fw-semibold">Số điện thoại</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-telephone"></i>
-                </span>
-                <input
-                  type="text"
-                  class="form-control border-start-0"
-                  name="phone"
-                  value="{{ user.phone }}"
-                  placeholder="Nhập số điện thoại..."
-                  required
-                  disabled
-                />
-              </div>
-            </div>
-            <div class="mb-4">
-              <label class="form-label fw-semibold">Thông tin ngân hàng</label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  name="bank_name"
-                  value="{{ user.bank_name }}"
-                  placeholder="Tên ngân hàng..."
-                  disabled
-                />
-                <input
-                  type="text"
-                  class="form-control"
-                  name="bank_number"
-                  value="{{ user.bank_number or '' }}"
-                  placeholder="Số tài khoản..."
-                  disabled
-                />
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone"></i></span>
+                <input type="text" class="form-control border-start-0" name="phone" value="{{ user.phone }}" required disabled />
               </div>
             </div>
 
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Thông tin ngân hàng</label>
+              <div class="input-group mb-2">
+                <span class="input-group-text bg-light">Tên NH</span>
+                <input type="text" class="form-control" name="name_bank" value="{{ user.name_bank or '' }}" placeholder="VD: MB Bank" disabled />
+              </div>
+              <div class="input-group">
+                <span class="input-group-text bg-light">STK</span>
+                <input type="text" class="form-control" name="bank_number" value="{{ user.bank_number or '' }}" placeholder="Số tài khoản..." disabled />
+              </div>
+            </div>
 
             <hr class="my-4 text-muted opacity-25" />
 
@@ -118,36 +68,16 @@
             </h6>
 
             <div class="mb-3">
-              <label class="form-label small text-muted"
-                >Mật khẩu mới (Bỏ trống nếu không đổi)</label
-              >
-              <input
-                type="password"
-                class="form-control"
-                name="password"
-                placeholder="Nhập mật khẩu mới..."
-                disabled
-              />
+              <label class="form-label small text-muted">Mật khẩu mới (Bỏ trống nếu không đổi)</label>
+              <input type="password" class="form-control" name="password" placeholder="Nhập mật khẩu mới..." disabled />
             </div>
             <div class="mb-4">
-              <label class="form-label small text-muted"
-                >Xác nhận mật khẩu mới</label
-              >
-              <input
-                type="password"
-                class="form-control"
-                name="confirm_password"
-                placeholder="Nhập lại mật khẩu mới..."
-                disabled
-              />
+              <label class="form-label small text-muted">Xác nhận mật khẩu mới</label>
+              <input type="password" class="form-control" name="re_password" placeholder="Nhập lại mật khẩu mới..." disabled />
             </div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <a
-                href="/"
-                class="btn btn-light fw-semibold text-secondary px-4 me-md-2"
-                >Quay lại</a
-              >
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end" id="action-buttons" style="display: none !important;">
+              <a href="/" class="btn btn-light fw-semibold text-secondary px-4 me-md-2">Hủy</a>
               <button type="submit" class="btn btn-primary fw-bold px-4">
                 <i class="bi bi-save me-2"></i>Lưu thay đổi
               </button>
@@ -157,25 +87,42 @@
       </div>
     </div>
   </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const toggleBtn = document.getElementById("toggle-form")
-      const form = document.getElementById("my-form")
-      const elements = form.querySelectorAll("input, select, textarea")
+      const toggleBtn = document.getElementById("toggle-form");
+      const form = document.getElementById("my-form");
+      const actionButtons = document.getElementById("action-buttons");
+      // Chọn tất cả input trừ cái email (email là cái đầu tiên hoặc check readonly)
+      const inputs = form.querySelectorAll("input:not([readonly])");
 
       toggleBtn.addEventListener("click", () => {
-        const shouldEnable = toggleBtn.dataset.enabled !== "true"
+        const isEditing = toggleBtn.dataset.editing === "true";
 
-        elements.forEach(el => {
-          if (el.name !== "email") el.disabled = !shouldEnable
-        })
+        if (isEditing) {
+          // Đang edit -> Hủy edit (Lock lại)
+          inputs.forEach(el => el.disabled = true);
+          actionButtons.style.setProperty("display", "none", "important");
+          
+          toggleBtn.innerHTML = '<i class="bi bi-pencil me-1"></i> Chỉnh sửa';
+          toggleBtn.classList.remove("btn-danger");
+          toggleBtn.classList.add("btn-outline-primary");
+          toggleBtn.dataset.editing = "false";
+          
+          // Reset form về giá trị cũ (nếu muốn)
+          form.reset();
+        } else {
+          // Đang lock -> Mở edit
+          inputs.forEach(el => el.disabled = false);
+          actionButtons.style.setProperty("display", "flex", "important");
 
-        toggleBtn.dataset.enabled = shouldEnable
-        toggleBtn.innerHTML = shouldEnable
-          ? '<i class="bi bi-x-lg"></i>'      // nút Close Edit
-          : '<i class="bi bi-pencil"></i>'    // nút Edit
-      })
-    })
-    </script>
+          toggleBtn.innerHTML = '<i class="bi bi-x-lg me-1"></i> Hủy bỏ';
+          toggleBtn.classList.remove("btn-outline-primary");
+          toggleBtn.classList.add("btn-danger");
+          toggleBtn.dataset.editing = "true";
+        }
+      });
+    });
+  </script>
 </div>
 {% endblock %}

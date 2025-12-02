@@ -14,3 +14,4 @@ psycopg2-binary
 slowapi
 jinja2
 itsdangerous
+pytz

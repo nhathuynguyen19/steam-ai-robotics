@@ -11,7 +11,12 @@ from sqlalchemy.orm import Session
 import models, schemas, database
 import os
 from fastapi.responses import HTMLResponse, RedirectResponse
+import pytz
 
+VN_TZ = pytz.timezone("Asia/Ho_Chi_Minh")
+
+def now_vn():
+    return datetime.now(VN_TZ)
 
 load_dotenv()
 
