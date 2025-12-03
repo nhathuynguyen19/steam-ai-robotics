@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 import database
 from sqlalchemy.orm import Session  # [Thêm] Để khai báo kiểu dữ liệu Session
 from datetime import date           # [Thêm] Để lấy ngày hiện tại
-import database
+import database, schemas
 from datetime import date, datetime, time
 
 
@@ -63,12 +63,21 @@ async def root(
         
         # 1. Đếm sự kiện ở các NGÀY KHÁC (Dùng SQL cho nhanh)
         # - Sự kiện ở tương lai (ngày mai trở đi)
-        future_events_count = db.query(models.Event).filter(models.Event.day_start > today).count()
+        future_events_count = db.query(models.Event).filter(
+            models.Event.day_start > today,
+            models.Event.status != schemas.EventStatus.DELETED.value
+            ).count()
         # - Sự kiện ở quá khứ (hôm qua trở về trước)
-        past_events_count = db.query(models.Event).filter(models.Event.day_start < today).count()
+        past_events_count = db.query(models.Event).filter(
+            models.Event.day_start < today,
+            models.Event.status != schemas.EventStatus.DELETED.value
+            ).count()
 
         # 2. Xử lý sự kiện trong HÔM NAY (Phải check từng tiết)
-        today_events = db.query(models.Event).filter(models.Event.day_start == today).all()
+        today_events = db.query(models.Event).filter(
+            models.Event.day_start == today,
+            models.Event.status != schemas.EventStatus.DELETED.value
+            ).all()
         
         today_upcoming_count = 0
         today_past_count = 0

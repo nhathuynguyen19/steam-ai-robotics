@@ -49,10 +49,13 @@ TAB_TITLES = {
     "finished": "Sự Kiện Đã Kết Thúc"
 }
 
-# Hàm helper chuyển tiết học sang giờ (7h - 13h) để dùng trong template
 def format_period(period: int) -> str:
-    hour = 7 + (period - 1) if period <= 4 else 13 + (period - 5)
-    return f"{hour}h00"
+    start = PERIOD_START_TIMES.get(period)
+    if not start:
+        return "N/A"
+    h, m = start
+    return f"{h}h{m:02d}"
+
 
 router = APIRouter(
     prefix="/partials",
