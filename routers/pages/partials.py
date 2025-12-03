@@ -49,8 +49,15 @@ TAB_TITLES = {
     "finished": "Sự Kiện Đã Kết Thúc"
 }
 
-def format_period(period: int) -> str:
+def format_period_start_time(period: int) -> str:
     start = PERIOD_START_TIMES.get(period)
+    if not start:
+        return "N/A"
+    h, m = start
+    return f"{h}h{m:02d}"
+
+def format_period_end_time(period: int) -> str:
+    start = PERIOD_END_TIMES.get(period)
     if not start:
         return "N/A"
     h, m = start
@@ -148,7 +155,7 @@ async def render_events_table(
         events_view.append({
             "event_id": event.event_id,
             "day_str": event.day_start.strftime("%d/%m/%Y"),
-            "time_str": f"{format_period(event.start_period)} - {format_period(event.end_period + 1)}",
+            "time_str": f"{format_period_start_time(event.start_period)} - {format_period_end_time(event.end_period)}",
             "period_detail": f"(Tiết {event.start_period}-{event.end_period})",
             "school_name": event.school_name,
             "name": event.name,
