@@ -1,14 +1,8 @@
-# from typing import Annotated
 from fastapi import FastAPI, Request
-# from fastapi.security import OAuth2PasswordRequestForm
-# from sqlalchemy.orm import Session, joinedload
 from routers.api import admin, auth, events, users
 import models, schemas, routers.api.auth as auth, database
-# from utils.email_utils import send_verification_email
-# from jose import jwt, JWTError
-from fastapi.staticfiles import StaticFiles # <--- Import cái này
-from fastapi.openapi.docs import get_redoc_html # <--- Import cái này
-# from models import EventRole
+from fastapi.staticfiles import StaticFiles
+from fastapi.openapi.docs import get_redoc_html
 from routers.api import users
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -17,7 +11,6 @@ from slowapi.errors import RateLimitExceeded
 from helpers.limiter import limiter
 from typing import Annotated
 from pathlib import Path
-
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -26,42 +19,23 @@ from fastapi.openapi.docs import get_redoc_html
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 import helpers.security as security
-
-from sqlalchemy.orm import Session
-from jose import jwt, JWTError
-from fastapi.responses import HTMLResponse, RedirectResponse # <--- Thêm RedirectResponse
-from datetime import date, datetime, time
-from typing import Optional
-from routers.api.events import PERIOD_END_TIMES
-
-
 from routers.pages import auth as auth_page
 from routers.pages import base as base_page
 from routers.pages import partials as partials_page
 from routers.pages import events as events_page
 from routers.pages import admin as pages_admin
 from routers.pages import profile
+from utils import alembic_config
 
-# from backend import models, schemas, auth, database
-# from backend.models import EventRole
-# from backend.email_utils import send_verification_email
-
-
-# ============================
-# PATH & TEMPLATE CONFIG
-# ============================
-
-
-
-app = FastAPI(docs_url="/docs", redoc_url=None)
-
+app = FastAPI(docs_url="/docs", 
+              redoc_url=None,
+              lifespan=alembic_config.lifespan
+              )
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# limiter setup
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
 app.add_middleware(SessionMiddleware, secret_key=security.SECRET_KEY)
+
 
 # api routers
 app.include_router(auth.router)
@@ -110,6 +84,7 @@ async def add_security_headers(request: Request, call_next):
     
     response.headers["Content-Security-Policy"] = csp_policy
     return response
+
     
 # @app.get("/", response_class=HTMLResponse)
 # async def page_home(request: Request, user: models.User | None = Depends(security.get_user_from_cookie)):

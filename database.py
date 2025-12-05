@@ -25,6 +25,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+from models import *
+
 # Dependency để lấy DB session
 def get_db():
     db = SessionLocal()

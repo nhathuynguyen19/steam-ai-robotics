@@ -5,6 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
+# them duong dan root
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -18,7 +22,14 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+from database import Base
+from models import *
+
+target_metadata = Base.metadata
+
+# --- FIX QUAN TRỌNG: LẤY DB URL TỪ ENV ---
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dev.db")
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -63,13 +74,26 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
     )
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+    # SQLite cần batch mode khi alter table
+    if DATABASE_URL.startswith("sqlite"):
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata,
+                render_as_batch=True  # <--- FIX CHUẨN CHO SQLITE
+            )
 
-        with context.begin_transaction():
-            context.run_migrations()
+            with context.begin_transaction():
+                context.run_migrations()
+    else:
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata
+            )
+
+            with context.begin_transaction():
+                context.run_migrations()
 
 
 if context.is_offline_mode():
