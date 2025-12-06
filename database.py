@@ -7,7 +7,7 @@ import os
 load_dotenv()  # Load biến môi trường từ file .env
 
 # Sử dụng SQLite file tên là test.db
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dev.db")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 # 2. Cấu hình connect_args động
 connect_args = {}

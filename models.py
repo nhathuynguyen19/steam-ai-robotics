@@ -42,8 +42,8 @@ class Event(Base):
     max_user_joined = Column(Integer, nullable=False)
     is_locked = Column(Boolean, default=False)
     
-    max_instructor = Column(Integer, nullable=False)
-    max_teaching_assistant = Column(Integer, nullable=False)
+    max_instructor = Column(Integer, nullable=True)
+    max_teaching_assistant = Column(Integer, nullable=True)
 
     # Quan hệ ngược lại bảng user_event
     participants = relationship("UserEvent", back_populates="event")
