@@ -195,13 +195,15 @@ class UserRequestProfile(BaseModel):
 class EventBase(BaseModel):
     name: str
     day_start: date
-    start_period: int = Field(..., ge=1, le=12, description="Tiết bắt đầu (1-12)")
-    end_period: int = Field(..., ge=1, le=12, description="Tiết kết thúc (1-12)")
+    start_period: int = Field(..., ge=1, le=26, description="Tiết bắt đầu (1-12)")
+    end_period: int = Field(..., ge=1, le=26, description="Tiết kết thúc (1-12)")
     number_of_student: int = Field(0, ge=0)
-    max_user_joined: int = Field(..., ge=1)
+    max_user_joined: int = Field(..., ge=0)
     status: str = EventStatus.ONGOING.value
     school_name: Optional[str] = None
     is_locked: bool = False
+    max_instructor: int = Field(..., ge=1)
+    max_teaching_assistant: int = Field(..., ge=0)
     
     @model_validator(mode='after')
     def check_period_logic(self):

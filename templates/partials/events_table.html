@@ -1,13 +1,11 @@
 <div
   class="card border-0 shadow-sm rounded-4 overflow-hidden mt-4"
   id="events-list-container"
-  hx-get="/partials/events-table/?tab={{ tab }}"
+  hx-get="/partials/events-table/?tab={{ current_tab }}"
   hx-trigger="event_updated from:body"
   hx-swap="outerHTML"
 >
-  <div
-    class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between"
-  >
+  <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
     <h5 class="mb-0 text-primary fw-bold">
       <i class="bi bi-calendar-week mx-2"></i>{{ title }}
     </h5>
@@ -18,324 +16,231 @@
       <table class="table table-hover align-middle mb-0" id="events-table">
         <thead class="bg-light">
           <tr>
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3 text-center"
-              style="width: 100px"
-            >
-              Thời Gian
-            </th>
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3 text-center"
-            >
-              Giờ Học
-            </th>
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3"
-            >
-              Sự Kiện
-            </th>
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3"
-            >
-              Trường học
-            </th>
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3"
-            >
-              Quy mô
-            </th>
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3 text-center"
-            >
-              Phân công
-            </th>
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3 text-center"
-              style="min-width: 160px"
-            >
-              Hành Động
+            <th class="text-secondary text-uppercase small fw-bold py-3 text-center" style="width: 110px">Thời Gian</th>
+            <th class="text-secondary text-uppercase small fw-bold py-3 text-center">Giờ Học</th>
+            <th class="text-secondary text-uppercase small fw-bold py-3">Sự Kiện</th>
+            <th class="text-secondary text-uppercase small fw-bold py-3">Trường học</th>
+            <th class="text-secondary text-uppercase small fw-bold py-3 text-center">Quy mô</th>
+            <th class="text-secondary text-uppercase small fw-bold py-3 text-center" style="min-width: 140px">Phân công</th>
+            
+            <th class="text-secondary text-uppercase small fw-bold py-3 text-center" style="min-width: 190px">
+              Đăng ký
             </th>
             
-            {# Bắt đầu thêm cột Admin Action - để đảm bảo đủ 8 cột #}
             {% if user and user.role == 'admin' %}
-            <th
-              scope="col"
-              class="text-secondary text-uppercase small fw-bold py-3 text-center"
-              style="min-width: 120px"
-            >
-              Admin
-            </th>
+            <th class="text-secondary text-uppercase small fw-bold py-3 text-center">Admin</th>
             {% endif %}
-            {# Kết thúc thêm cột Admin Action #}
           </tr>
         </thead>
         <tbody id="events-table-body" class="border-top-0">
-          {# --- EMPTY STATE: Trạng thái trống --- #} {% if not events %}
+          
+          {% if not events %}
           <tr>
             <td colspan="8" class="text-center py-5" style="height: 250px">
-              <div
-                class="d-flex flex-column align-items-center justify-content-center text-muted opacity-75"
-              >
+              <div class="d-flex flex-column align-items-center justify-content-center text-muted opacity-75">
                 <i class="bi bi-inbox fs-1 mb-2"></i>
-                <span>Chưa có sự kiện nào trong danh sách.</span>
+                <span>Chưa có sự kiện nào.</span>
               </div>
             </td>
           </tr>
-          {% endif %} {# --- DATA ROWS --- #} {% for event in events %}
-          <tr
-            class="{% if event.is_locked or event.is_ended %}bg-light opacity-75{% endif %}"
-          >
-            {# 1. Cột Thời gian (Ngày tháng) #}
-            <td class="text-center border-end-0 px-4">
-              <div class="d-flex flex-column">
-                <span class="fw-bold fs-5 text-dark"
-                  >{{ event.day_str.split('-')|last }}</span
-                >
-                <span class="small text-muted text-uppercase"
-                  >{{ event.day_str_month_year }}</span
-                >
+          {% endif %} 
+          
+          {% for event in events %}
+          <tr class="{% if event.is_locked or event.is_ended %}bg-light opacity-100{% endif %}">
+            
+            <td class="text-center px-3 ">
+              <div class="d-flex flex-column align-items-center">
+                 <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-1">{{ event.day_name }}</span>
+                <span class="fw-bold fs-4 text-dark lh-1">{{ event.day_str.split('/')[0] }}</span>
+                <span class="small text-muted" style="font-size: 0.7rem;">Tháng {{ event.day_str.split('/')[1] }}</span>
               </div>
+              
             </td>
 
-            {# 2. Cột Giờ học (Thêm icon đồng hồ) #}
-            <td class="text-center">
-              <div
-                class="badge rounded-pill bg-soft-primary text-primary bg-opacity-10 border border-primary border-opacity-25 px-3 py-2"
-              >
+            <td class="text-center ">
+              <div class="d-inline-flex align-items-center justify-content-center badge rounded-pill bg-light text-secondary border px-3 py-2">
                 <i class="bi bi-clock me-1"></i> {{ event.time_str }}
               </div>
-              <div
-                class="small text-muted mt-1 fw-semibold"
-                style="font-size: 0.75rem"
-              >
-                {{ event.period_detail }}
-              </div>
             </td>
 
-            {# 3. Cột Tên Sự Kiện #}
-            <td>
-              <span class="fw-bold text-dark fs-6">{{ event.name }}</span>
-            </td>
+            <td class=""><span class="fw-bold text-dark fs-6">{{ event.name }}</span></td>
 
-            {# 4. Cột Trường Học (Mới tách ra) #}
-            <td>
-              <div class="d-flex align-items-center text-secondary">
-                <i class="bi bi-building text-danger me-2 opacity-75"></i>
-                <span class="fw-medium"
-                  >{{ event.school_name or 'Chưa cập nhật' }}</span
-                >
-              </div>
-            </td>
-
-            {# 5. Cột Quy mô (Học sinh) #}
-            <td class="text-center">
-              <div
-                class="d-flex align-items-center justify-content-center"
-                title="Số lượng học sinh"
-              >
-                <i class="bi bi-people text-secondary me-2"></i>
-                <span class="fw-bold">{{ event.student_count }}</span>
-              </div>
-            </td>
-
-            {# 6. Cột Phân công (GV & TA) #}
-            <td>
-              <div class="d-flex flex-column gap-1">
-                <div class="small">
-                  <span class="badge bg-light text-dark border me-1">GV</span>
-                  <span class="text-secondary"
-                    >{{ event.instructors or '---' }}</span
-                  >
+            <td class="">
+                <div class="d-flex align-items-center text-secondary">
+                    <span class="fw-medium small">{{ event.school_name or '---' }}</span>
                 </div>
-                <div class="small">
-                  <span class="badge bg-light text-dark border me-1">TA</span>
-                  <span class="text-secondary">{{ event.tas or '---' }}</span>
+            </td>
+
+            <td class="text-center ">
+                <span class="fw-bold text-dark">{{ event.student_count }}</span>
+                <span class="small text-muted d-block">HS</span>
+            </td>
+
+            <td class="">
+              <div class="d-flex flex-column gap-2" style="font-size: 0.85rem;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 me-1">GV</span>
+                    <span class="text-end text-truncate" style="max-width: 100px;" title="{{ event.instructors }}">{{ event.instructors }}</span>
+                    <small class="text-muted ms-1">({{ event.curr_instructor }}/{{ event.max_instructor }})</small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 me-1">TA</span>
+                    <span class="text-end text-truncate" style="max-width: 100px;" title="{{ event.tas }}">{{ event.tas }}</span>
+                    <small class="text-muted ms-1">({{ event.curr_ta }}/{{ event.max_ta }})</small>
                 </div>
               </div>
             </td>
 
-            {# 7. Cột Hành động #}
-            <td class="text-center">
-              <div class="d-flex justify-content-center">
-                {# CASE 1: Đã hoàn thành #} {% if event.attendance_status ==
-                'attended' %}
-                <span
-                  class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill border border-success border-opacity-25"
-                >
-                  <i class="bi bi-check-circle-fill me-1"></i> Đã hoàn thành
-                </span>
+            <td class="align-middle p-2"
+            >
+                <div class="bg-light rounded-3 p-2 border border-light">
+                    
+                    {# --- HÀNG 1: ĐỨNG LỚP (INSTRUCTOR) --- #}
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="fw-bold text-primary small text-uppercase" style="width: 25px;">GV</span>
+                        
+                        {# CASE A: Đã tham gia #}
+                        {% if event.is_joined %}
+                            {% if event.user_role == 'instructor' %}
+                                {% if event.attendance_status == 'attended' %}
+                                    <button class="btn btn-sm btn-success w-100 disabled border-0 opacity-75">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Xong
+                                    </button>
+                                {% else %}
+                                    {% if event.is_ended %}
+                                        <button class="btn btn-sm btn-primary w-100 shadow-sm" 
+                                            hx-post="/api/events/{{ event.event_id }}/attend/"
+                                            hx-target="#events-list-container" hx-swap="outerHTML">
+                                            <i class="bi bi-qr-code me-1"></i>Check-in
+                                        </button>
+                                    {% else %}
+                                        {% if not event.is_locked %}
+                                        <button class="btn btn-sm btn-outline-danger w-100 bg-white" 
+                                            hx-post="/api/events/{{ event.event_id }}/leave/"
+                                            hx-confirm="Hủy đăng ký Đứng lớp?"
+                                            hx-target="#events-list-container" hx-swap="outerHTML">
+                                            Hủy đăng ký
+                                        </button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-secondary w-100 disabled" disabled><i class="bi bi-lock-fill"></i></button>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <button class="btn btn-sm btn-light text-muted w-100 border-0" disabled>---</button>
+                            {% endif %}
+                        
+                        {# CASE B: Chưa tham gia #}
+                        {% else %}
+                            {% if event.is_ended %}
+                                <button class="btn btn-sm btn-light text-muted w-100 border" disabled>Kết thúc</button>
+                            {% elif event.is_locked %}
+                                <button class="btn btn-sm btn-light text-muted w-100 border" disabled><i class="bi bi-lock-fill"></i></button>
+                            {% elif event.is_instructor_full %}
+                                <button class="btn btn-sm btn-light text-warning w-100 border border-warning" disabled>Đã đầy</button>
+                            {% else %}
+                                <button class="btn btn-sm btn-outline-primary fw-bold w-100 bg-white shadow-sm"
+                                    hx-post="/api/events/{{ event.event_id }}/join/"
+                                    hx-vals='{"role": "instructor"}'
+                                    hx-target="#events-list-container" hx-swap="outerHTML">
+                                    Đăng ký
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
 
-                {# CASE 2: Đã tham gia (Pending / Active) #} {% elif
-                event.is_joined %}
-                <div class="btn-group btn-group-sm shadow-sm" role="group">
-                  {# Nút Hủy #} {% if not event.is_locked and not event.is_ended
-                  %}
-                  <button
-                    class="btn btn-outline-danger border-end-0"
-                    hx-post="/api/events/{{ event.event_id }}/leave/"
-                    hx-confirm="Bạn chắc chắn muốn hủy tham gia sự kiện này chứ?"
-                    hx-target="#events-list-container"
-                    hx-swap="outerHTML"
-                    title="Hủy đăng ký"
-                  >
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                  {% endif %} 
-                  {# Nút Điểm danh #} 
-                  {% if event.is_ended %}
-                  <button
-                    class="btn btn-primary"
-                    hx-post="/api/events/{{ event.event_id }}/attend/"
-                    hx-target="#events-list-container"
-                    hx-swap="outerHTML"
-                  >
-                    <i class="bi bi-qr-code-scan me-1"></i> Điểm danh
-                  </button>
-                  {% else %}
-                  <button class="btn btn-outline-secondary" disabled>
-                    <i class="bi bi-hourglass-split me-1"></i> Chờ kết thúc
-                  </button>
-                  {% endif %}
+                    {# --- HÀNG 2: HỖ TRỢ (TA) --- #}
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-success small text-uppercase" style="width: 25px;">TA</span>
+
+                        {% if event.is_joined %}
+                            {% if event.user_role == 'teaching_assistant' or event.user_role == 'ta' %}
+                                {% if event.attendance_status == 'attended' %}
+                                    <button class="btn btn-sm btn-success w-100 disabled border-0 opacity-75">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Xong
+                                    </button>
+                                {% else %}
+                                    {% if event.is_ended %}
+                                        <button class="btn btn-sm btn-primary w-100 shadow-sm" 
+                                            hx-post="/api/events/{{ event.event_id }}/attend/"
+                                            hx-target="#events-list-container" hx-swap="outerHTML">
+                                            <i class="bi bi-qr-code me-1"></i>Check-in
+                                        </button>
+                                    {% else %}
+                                        {% if not event.is_locked %}
+                                        <button class="btn btn-sm btn-outline-danger w-100 bg-white" 
+                                            hx-post="/api/events/{{ event.event_id }}/leave/"
+                                            hx-confirm="Hủy đăng ký Trợ giảng?"
+                                            hx-target="#events-list-container" hx-swap="outerHTML">
+                                            Hủy đăng ký
+                                        </button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-secondary w-100 disabled" disabled><i class="bi bi-lock-fill"></i></button>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <button class="btn btn-sm btn-light text-muted w-100 border-0" disabled>---</button>
+                            {% endif %}
+
+                        {% else %}
+                            {% if event.is_ended %}
+                                <button class="btn btn-sm btn-light text-muted w-100 border" disabled>Kết thúc</button>
+                            {% elif event.is_locked %}
+                                <button class="btn btn-sm btn-light text-muted w-100 border" disabled><i class="bi bi-lock-fill"></i></button>
+                            {% elif event.is_ta_full %}
+                                <button class="btn btn-sm btn-light text-warning w-100 border border-warning" disabled>Đã đầy</button>
+                            {% else %}
+                                <button class="btn btn-sm btn-outline-success fw-bold w-100 bg-white shadow-sm"
+                                    hx-post="/api/events/{{ event.event_id }}/join/"
+                                    hx-vals='{"role": "teaching_assistant"}'
+                                    hx-target="#events-list-container" hx-swap="outerHTML">
+                                    Đăng ký
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
-
-                {# CASE 3: Chưa tham gia #} 
-                {% else %} 
-                  {% if event.is_locked and not event.is_ended %}
-                  <span
-                    class="badge bg-secondary opacity-50 rounded-pill px-3 py-2"
-                  >
-                    <i class="bi bi-lock-fill me-1"></i> Đã khóa
-                  </span>
-                  {% elif event.is_full and not event.is_ended %}
-                  <span
-                    class="badge bg-warning text-dark bg-opacity-25 border border-warning rounded-pill px-3 py-2"
-                  >
-                    <i class="bi bi-person-x-fill me-1"></i> Đã đầy
-                  </span>
-                  {% else %} {% if not event.is_ended %}
-                  <div class="dropdown">
-                    <button
-                      class="btn btn-sm btn-outline-primary fw-bold dropdown-toggle rounded-pill px-3"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      Đăng ký ngay
-                    </button>
-                    <ul
-                      class="dropdown-menu dropdown-menu-end shadow border-0 mt-1"
-                    >
-                      <li>
-                        <h6 class="dropdown-header text-uppercase small fw-bold">
-                          Chọn vai trò
-                        </h6>
-                      </li>
-                      <li>
-                        <button
-                          class="dropdown-item d-flex align-items-center py-2"
-                          hx-post="/api/events/{{ event.event_id }}/join/"
-                          hx-vals='{"role": "instructor"}'
-                          hx-target="#events-list-container"
-                          hx-swap="outerHTML"
-                        >
-                          <i class="bi bi-person-video3 me-2 text-primary"></i>
-                          <span>Đứng lớp (Instructor)</span>
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          class="dropdown-item d-flex align-items-center py-2"
-                          hx-post="/api/events/{{ event.event_id }}/join/"
-                          hx-vals='{"role": "ta"}'
-                          hx-target="#events-list-container"
-                          hx-swap="outerHTML"
-                        >
-                          <i class="bi bi-person-check me-2 text-success"></i>
-                          <span>Hỗ trợ (TA)</span>
-                        </button>
-                      </li>
-                    </ul>
-                  </div> 
-                  {% else %}
-                  <span class="text-muted small fst-italic">Đã kết thúc</span>
-                  {% endif %} 
-                {% endif %} 
-              {% endif %}
-              </div>
             </td>
-            
-            {# 8. Cột Admin Action #}
+
             {% if user and user.role == 'admin' %}
             <td class="text-center">
-              <div class="d-flex justify-content-center align-items-center">
-                {# Nút Sửa #}
-                <a
-                  href="/events/{{ event.event_id }}/edit"
-                  class="btn btn-outline-primary btn-sm me-2 shadow-sm"
-                  title="Cập nhật sự kiện"
-                >
+              <div class="d-flex flex-column gap-1 justify-content-center">
+                <a href="/events/{{ event.event_id }}/edit" class="btn btn-outline-primary btn-sm border-0" title="Sửa">
                   <i class="bi bi-pencil-square"></i>
                 </a>
-
-                {# Logic Nút Khóa / Mở khóa #}
-                {% if event.is_locked %}
-                <button
-                  class="btn btn-outline-secondary btn-sm shadow-sm me-2"
-                  title="Mở khóa đăng ký"
-                  hx-post="/api/events/{{ event.event_id }}/unlock"
-                  hx-target="#events-list-container"
-                  hx-swap="outerHTML"
-                >
-                  <i class="bi bi-unlock-fill"></i>
-                </button>
-                {% else %} 
-                  {% if not event.is_ended %}
-                  <button
-                    class="btn btn-outline-warning btn-sm shadow-sm me-2"
-                    title="Khóa đăng ký (Không cho tham gia nữa)"
-                    hx-confirm="Bạn có chắc chắn muốn KHÓA sự kiện này? Sinh viên sẽ không thể đăng ký tham gia được nữa."
-                    hx-post="/api/events/{{ event.event_id }}/lock"
-                    hx-target="#events-list-container"
-                    hx-swap="outerHTML"
-                  >
-                    <i class="bi bi-lock-fill"></i>
-                  </button>
-                  {% endif %} 
-                {% endif %}
                 
-                {# Nút Xóa (Soft Delete) #}
-                <button
-                    class="btn btn-outline-danger btn-sm shadow-sm"
-                    title="Xóa sự kiện (Soft Delete)"
+                {% if not event.is_ended %}
+                    {% if event.is_locked %}
+                    <button class="btn btn-outline-secondary btn-sm border-0" title="Mở khóa"
+                        hx-post="/api/events/{{ event.event_id }}/unlock"
+                        hx-target="#events-list-container" hx-swap="outerHTML">
+                        <i class="bi bi-unlock-fill"></i>
+                    </button>
+                    {% else %}
+                    <button class="btn btn-outline-warning btn-sm border-0" title="Khóa"
+                        hx-confirm="Khóa sự kiện này?"
+                        hx-post="/api/events/{{ event.event_id }}/lock"
+                        hx-target="#events-list-container" hx-swap="outerHTML">
+                        <i class="bi bi-lock-fill"></i>
+                    </button>
+                    {% endif %}
+                {% endif %}
+
+                <button class="btn btn-outline-danger btn-sm border-0" title="Xóa"
                     hx-delete="/api/admin/events/{{ event.event_id }}"
-                    hx-confirm="CẢNH BÁO: Bạn có chắc chắn muốn XÓA sự kiện '{{ event.name }}'? Dữ liệu sẽ bị ẩn khỏi hệ thống."
-                    hx-target="closest tr"
-                    hx-swap="none"
-                >
+                    hx-confirm="Xóa sự kiện này?"
+                    hx-target="closest tr" hx-swap="none">
                     <i class="bi bi-trash"></i>
                 </button>
               </div>
             </td>
             {% endif %}
+
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-
-  {% if events %}
-  <div class="card-footer bg-white border-top-0 py-3">
-    <div class="small text-muted text-center">
-      Hiển thị {{ events|length }} sự kiện.
     </div>
-  </div>
-  {% endif %}
-</div>

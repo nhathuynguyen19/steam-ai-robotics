@@ -9,38 +9,16 @@ from datetime import datetime, date, time
 from pathlib import Path
 from fastapi.templating import Jinja2Templates
 from zoneinfo import ZoneInfo
+from typing import List 
+import models # Đảm bảo đã import models
+from utils.constants import PERIOD_START_TIMES, PERIOD_END_TIMES
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-PERIOD_START_TIMES = {
-    1:  (7, 0),
-    2:  (8, 0),
-    3:  (9, 0),
-    4:  (10, 0),
-    5:  (13, 0),
-    6:  (14, 0),
-    7:  (15, 0),
-    8:  (16, 0),
-    9:  (17, 30),
-    10: (18, 25),
-    11: (19, 25),
-    12: (20, 25),
-}
 
-PERIOD_END_TIMES = {
-    1:  (8, 0),
-    2:  (9, 0),
-    3:  (10, 0),
-    4:  (11, 0),
-    5:  (14, 0),
-    6:  (15, 0),
-    7:  (16, 0),
-    8:  (17, 0),
-    9:  (18, 25),
-    10: (19, 25),
-    11: (20, 25),
-    12: (21, 25),
-}
+def get_vietnamese_weekday(d: date) -> str:
+    weekdays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"]
+    return weekdays[d.weekday()]
 
 TAB_TITLES = {
     "upcoming": "Sự Kiện Sắp Diễn Ra",
@@ -89,7 +67,7 @@ async def render_events_table(
         .limit(20)\
         .all()
 
-    filtered_events = []
+    filtered_events: list[models.Event] = []
     now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).replace(tzinfo=None)
 
     # 2. Lọc sự kiện theo Tab
@@ -133,42 +111,73 @@ async def render_events_table(
     # Giới hạn số lượng hiển thị (ví dụ 50) để tránh quá tải view
     filtered_events = filtered_events[:50]
 
-    # 4. Build View Model (Giữ nguyên logic cũ của bạn)
     events_view = []
     for event in filtered_events:
-        instructors = [p.user.full_name 
-                       for p in event.participants 
-                       if p.role == 'instructor' and p.user and p.user.full_name]
-        tas = [p.user.full_name 
-               for p in event.participants 
-               if p.role == 'ta' and p.user and p.user.full_name]
+        # 1. Tách danh sách tham gia
+        # Lưu ý: check kỹ string role trong DB so với Enum. 
+        # Trong schemas.py: INSTRUCTOR = "instructor", TA = "teaching_assistant"
         
+        list_instructors = [p for p in event.participants if p.role == EventRole.INSTRUCTOR.value]
+        list_tas = [p for p in event.participants if p.role == EventRole.TA.value]
+        
+        # Lấy tên để hiển thị (như cũ)
+        instructor_names = [p.user.full_name for p in list_instructors if p.user]
+        ta_names = [p.user.full_name for p in list_tas if p.user]
+        
+        # 2. Tìm trạng thái của user hiện tại
         current_participant = next((p for p in event.participants if p.user_id == current_user.user_id), None)
         is_joined = current_participant is not None
+        user_role = current_participant.role if is_joined else None
+        attendance_status = current_participant.status if is_joined else None
         
-        # Logic is_ended dùng chính biến real_end_dt đã tính ở trên
+        # 3. Tính toán Logic từng vai trò
+        # Instructor
+        count_instructor = len(list_instructors)
+        is_instructor_full = count_instructor >= (event.max_instructor or 1) # Default 1 nếu None
+        
+        # TA
+        count_ta = len(list_tas)
+        is_ta_full = count_ta >= (event.max_teaching_assistant or 0) # Default 0 nếu None
+
+        # Logic thời gian
         is_ended = now > event.real_end_dt
         
-        is_full = len(event.participants) >= event.max_user_joined
-
+        # [THÊM] Tính thứ
+        day_name_str = get_vietnamese_weekday(event.day_start)
+        
         events_view.append({
             "event_id": event.event_id,
             "day_str": event.day_start.strftime("%d/%m/%Y"),
+            "day_str_month_year": event.day_start.strftime("%m/%Y"), # Thêm trường này cho template
             "time_str": f"{format_period_start_time(event.start_period)} - {format_period_end_time(event.end_period)}",
             "period_detail": f"(Tiết {event.start_period}-{event.end_period})",
             "school_name": event.school_name,
             "name": event.name,
             "student_count": event.number_of_student,
-            "instructors": ", ".join(instructors) if instructors else "---",
-            "tas": ", ".join(tas) if tas else "---",
             
+            # Thông tin hiển thị cột phân công
+            "instructors": ", ".join(instructor_names) if instructor_names else "---",
+            "tas": ", ".join(ta_names) if ta_names else "---",
+            
+            # Thông tin logic hành động
             "is_joined": is_joined,
-            "user_role": current_participant.role if is_joined else None,
-            "attendance_status": current_participant.status if is_joined else None,
+            "user_role": user_role,              # 'instructor' hoặc 'teaching_assistant'
+            "attendance_status": attendance_status, # 'registered' hoặc 'attended'
+            
             "is_ended": is_ended,
-            "is_full": is_full,
             "is_locked": event.is_locked,
-            "status": event.status
+            "status": event.status,
+            
+            # Logic riêng cho từng role
+            "max_instructor": event.max_instructor,
+            "curr_instructor": count_instructor,
+            "is_instructor_full": is_instructor_full,
+            
+            "max_ta": event.max_teaching_assistant,
+            "curr_ta": count_ta,
+            "is_ta_full": is_ta_full,
+            
+            "day_name": day_name_str,
         })
         
     current_title = TAB_TITLES.get(tab, "Danh Sách Sự Kiện")
@@ -179,7 +188,7 @@ async def render_events_table(
             "request": request, 
             "events": events_view,
             "user": current_user,
-            "current_tab": tab, # Truyền tab xuống view để active button nếu cần
-            "title": current_title # Truyền tiêu đề xuống template
+            "current_tab": tab, 
+            "title": current_title
         }
     )

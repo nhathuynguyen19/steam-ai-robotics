@@ -70,32 +70,26 @@ Robotics{% endblock %} {% block content %}
 
           <div class="row g-3 mb-3">
             <div class="col-6">
-              <label for="start_period" class="form-label fw-bold"
-                >Tiết bắt đầu</label
-              >
-              <input
-                type="number"
-                class="form-control"
-                id="start_period"
-                name="start_period"
-                min="1"
-                max="12"
-                required
-              />
+              <label for="start_period" class="form-label fw-bold">Giờ bắt đầu</label>
+              <select class="form-select" id="start_period" name="start_period" required>
+                <option value="" selected disabled>Chọn giờ bắt đầu...</option>
+                {% for pid, (h, m) in period_start_times.items() %}
+                  <option value="{{ pid }}">
+                    {{ '%02d' % h }}:{{ '%02d' % m }}
+                  </option>
+                {% endfor %}
+              </select>
             </div>
             <div class="col-6">
-              <label for="end_period" class="form-label fw-bold"
-                >Tiết kết thúc</label
-              >
-              <input
-                type="number"
-                class="form-control"
-                id="end_period"
-                name="end_period"
-                min="1"
-                max="12"
-                required
-              />
+              <label for="end_period" class="form-label fw-bold">Giờ kết thúc</label>
+              <select class="form-select" id="end_period" name="end_period" required>
+                <option value="" selected disabled>Chọn giờ kết thúc...</option>
+                {% for pid, (h, m) in period_end_times.items() %}
+                  <option value="{{ pid }}">
+                    {{ '%02d' % h }}:{{ '%02d' % m }}
+                  </option>
+                {% endfor %}
+              </select>
             </div>
           </div>
 
@@ -125,11 +119,36 @@ Robotics{% endblock %} {% block content %}
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-3">
               <label
-                for="max_user_joined"
+                for="max_instructor"
                 class="form-label fw-bold text-primary"
-                >Giới hạn GV/HT đăng ký</label
+                >GV</label
+              >
+              <div class="input-group">
+                <span class="input-group-text bg-primary text-white"
+                  ><i class="bi bi-mortarboard"></i
+                ></span>
+                <input
+                  type="number"
+                  class="form-control border-primary"
+                  id="max_instructor"
+                  name="max_instructor"
+                  min="1"
+                  value="1"
+                  required
+                />
+              </div>
+              <div class="form-text" style="font-size: 0.85rem">
+                Số giảng viên tối đa được tham gia sự kiện này.
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label
+                for="max_teaching_assistant"
+                class="form-label fw-bold text-primary"
+                >HT</label
               >
               <div class="input-group">
                 <span class="input-group-text bg-primary text-white"
@@ -138,15 +157,15 @@ Robotics{% endblock %} {% block content %}
                 <input
                   type="number"
                   class="form-control border-primary"
-                  id="max_user_joined"
-                  name="max_user_joined"
-                  min="1"
-                  value="2"
+                  id="max_teaching_assistant"
+                  name="max_teaching_assistant"
+                  min="0"
+                  value="0"
                   required
                 />
               </div>
               <div class="form-text" style="font-size: 0.85rem">
-                Số giảng viên, sinh viên tối đa được tham gia sự kiện này.
+                Số trợ giảng tối đa được tham gia sự kiện này.
               </div>
             </div>
           </div>

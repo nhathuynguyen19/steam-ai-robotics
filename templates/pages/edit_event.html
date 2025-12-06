@@ -66,56 +66,91 @@ Robotics{% endblock %} {% block content %}
 
           <div class="row mb-3">
             <div class="col-6">
-              <label class="form-label fw-semibold">Tiết bắt đầu</label>
-              <input
-                type="number"
-                class="form-control"
-                name="start_period"
-                min="1"
-                max="12"
-                value="{{ event.start_period }}"
-                required
-              />
+              <label class="form-label fw-semibold">Giờ bắt đầu</label>
+              <select class="form-select" name="start_period" required>
+                {% for pid, (h, m) in period_start_times.items() %}
+                  <option value="{{ pid }}" {% if event.start_period == pid %}selected{% endif %}>
+                    {{ '%02d' % h }}:{{ '%02d' % m }}
+                  </option>
+                {% endfor %}
+              </select>
             </div>
             <div class="col-6">
-              <label class="form-label fw-semibold">Tiết kết thúc</label>
-              <input
-                type="number"
-                class="form-control"
-                name="end_period"
-                min="1"
-                max="12"
-                value="{{ event.end_period }}"
-                required
-              />
+              <label class="form-label fw-semibold">Giờ kết thúc</label>
+              <select class="form-select" name="end_period" required>
+                {% for pid, (h, m) in period_end_times.items() %}
+                  <option value="{{ pid }}" {% if event.end_period == pid %}selected{% endif %}>
+                    {{ '%02d' % h }}:{{ '%02d' % m }}
+                  </option>
+                {% endfor %}
+              </select>
             </div>
           </div>
 
-          <div class="mb-4">
-            <label class="form-label fw-semibold"
-              >Giới hạn người đăng ký (Giảng viên/TA)</label
-            >
-            <input
-              type="number"
-              class="form-control"
-              name="max_user_joined"
-              min="1"
-              value="{{ event.max_user_joined }}"
-              required
-            />
+          <div class="row mb-4">
+             <div class="col-6">
+                <label class="form-label fw-semibold text-primary">Giới hạn GV (Instructor)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-primary bg-opacity-10 text-primary border-primary border-opacity-25">
+                        <i class="bi bi-mortarboard"></i>
+                    </span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      name="max_instructor"
+                      min="1"
+                      value="{{ event.max_instructor or 1 }}"
+                      required
+                    />
+                </div>
+             </div>
+             
+             <div class="col-6">
+                <label class="form-label fw-semibold text-success">Giới hạn TA (Trợ giảng)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-success bg-opacity-10 text-success border-success border-opacity-25">
+                        <i class="bi bi-person-badge"></i>
+                    </span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      name="max_teaching_assistant"
+                      min="0"
+                      value="{{ event.max_teaching_assistant or 0 }}"
+                      required
+                    />
+                </div>
+             </div>
+             <div class="form-text mt-2 ms-1">
+                Tổng số người tham gia tối đa: <span id="total-max">Tự động tính</span>
+             </div>
           </div>
 
           <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary fw-bold py-2">
               Lưu thay đổi
             </button>
-            <a href="/events" class="btn btn-light text-muted fw-semibold"
-              >Hủy bỏ</a
-            >
+            <a href="/events" class="btn btn-light text-muted fw-semibold">Hủy bỏ</a>
           </div>
         </form>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+    const iInput = document.querySelector('input[name="max_instructor"]');
+    const tInput = document.querySelector('input[name="max_teaching_assistant"]');
+    const totalSpan = document.getElementById('total-max');
+    
+    function calcTotal() {
+        const i = parseInt(iInput.value) || 0;
+        const t = parseInt(tInput.value) || 0;
+        totalSpan.textContent = i + t;
+    }
+    
+    iInput.addEventListener('input', calcTotal);
+    tInput.addEventListener('input', calcTotal);
+    calcTotal(); // Run on load
+</script>
 {% endblock %}

@@ -11,6 +11,7 @@ import models
 import schemas
 import helpers.security as security
 from fastapi import HTTPException
+from routers.api.events import PERIOD_START_TIMES, PERIOD_END_TIMES
 
 # Định nghĩa đường dẫn tới thư mục templates
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -28,14 +29,17 @@ async def get_event_create_page(
     current_user: models.User = Depends(security.get_current_admin_from_cookie)
 ):
     if not isinstance(current_user, models.User):
-        return current_user # Trả về RedirectResponse nếu bị redirect
+        return current_user 
     
     return templates.TemplateResponse(
-        "pages/create_event.html",  # Bạn cần tạo file template này
+        "pages/create_event.html",
         {
             "request": request,
             "user": current_user,
-            "error": None
+            "error": None,
+            # [MỚI] Truyền danh sách giờ xuống template
+            "period_start_times": PERIOD_START_TIMES,
+            "period_end_times": PERIOD_END_TIMES
         }
     )
 
@@ -48,7 +52,9 @@ async def create_event_action(
     start_period: Annotated[int, Form()],
     end_period: Annotated[int, Form()],
     number_of_student: Annotated[int, Form()],
-    max_user_joined: Annotated[int, Form()],
+    # max_user_joined: Annotated[int, Form()],
+    max_instructor: Annotated[int, Form()],
+    max_teaching_assistant: Annotated[int, Form()],
     school_name: Annotated[Optional[str], Form()] = None,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_current_admin_from_cookie)
@@ -61,8 +67,10 @@ async def create_event_action(
             start_period=start_period,
             end_period=end_period,
             number_of_student=number_of_student, # Map vào schema
-            max_user_joined=max_user_joined,
-            school_name=school_name
+            max_user_joined=max_instructor + max_teaching_assistant,
+            school_name=school_name,
+            max_instructor=max_instructor,
+            max_teaching_assistant=max_teaching_assistant,
         )
         
         # Tạo model và lưu vào DB
@@ -119,7 +127,10 @@ async def get_event_edit_page(
             "request": request,
             "user": current_user,
             "event": event,
-            "error": None
+            "error": None,
+            # [MỚI] Truyền danh sách giờ xuống template
+            "period_start_times": PERIOD_START_TIMES,
+            "period_end_times": PERIOD_END_TIMES
         }
     )
 
@@ -133,7 +144,9 @@ async def update_event_action(
     start_period: Annotated[int, Form()],
     end_period: Annotated[int, Form()],
     number_of_student: Annotated[int, Form()],
-    max_user_joined: Annotated[int, Form()],
+    # [THAY ĐỔI] Thay max_user_joined bằng 2 trường riêng biệt
+    max_instructor: Annotated[int, Form()],
+    max_teaching_assistant: Annotated[int, Form()],
     school_name: Annotated[Optional[str], Form()] = None,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_current_admin_from_cookie)
@@ -146,24 +159,33 @@ async def update_event_action(
         raise HTTPException(status_code=404, detail="Không tìm thấy sự kiện")
 
     try:
-        # Validate dữ liệu bằng Schema (tái sử dụng EventCreate)
+        # Tự động tính tổng max_user_joined
+        calculated_max_joined = max_instructor + max_teaching_assistant
+        
+        # Validate dữ liệu bằng Schema
         event_data = schemas.EventCreate(
             name=name,
             day_start=day_start,
             start_period=start_period,
             end_period=end_period,
             number_of_student=number_of_student,
-            max_user_joined=max_user_joined,
+            max_user_joined=calculated_max_joined, # Gán giá trị tính toán
+            max_instructor=max_instructor,         # Gán giá trị riêng
+            max_teaching_assistant=max_teaching_assistant, # Gán giá trị riêng
             school_name=school_name
         )
 
-        # Cập nhật các trường
+        # Cập nhật các trường vào DB
         event.name = event_data.name
         event.day_start = event_data.day_start
         event.start_period = event_data.start_period
         event.end_period = event_data.end_period
         event.number_of_student = event_data.number_of_student
+        
+        event.max_instructor = event_data.max_instructor
+        event.max_teaching_assistant = event_data.max_teaching_assistant
         event.max_user_joined = event_data.max_user_joined
+        
         event.school_name = event_data.school_name
         
         db.commit()
@@ -179,7 +201,9 @@ async def update_event_action(
                 "request": request,
                 "user": current_user,
                 "event": event, # Trả lại event cũ để fill form
-                "error": str(e)
+                "error": str(e),
+                "period_start_times": PERIOD_START_TIMES,
+                "period_end_times": PERIOD_END_TIMES
             }
         )
     except Exception as e:
@@ -190,6 +214,8 @@ async def update_event_action(
                 "request": request,
                 "user": current_user,
                 "event": event,
-                "error": "Lỗi hệ thống: " + str(e)
+                "error": "Lỗi hệ thống: " + str(e),
+                "period_start_times": PERIOD_START_TIMES,
+                "period_end_times": PERIOD_END_TIMES
             }
         )

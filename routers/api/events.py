@@ -9,39 +9,10 @@ from datetime import datetime, date, time
 from pathlib import Path
 from fastapi.templating import Jinja2Templates
 from zoneinfo import ZoneInfo
+from utils.constants import PERIOD_START_TIMES, PERIOD_END_TIMES
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-
-PERIOD_START_TIMES = {
-    1:  (7, 0),
-    2:  (8, 0),
-    3:  (9, 0),
-    4:  (10, 0),
-    5:  (13, 0),
-    6:  (14, 0),
-    7:  (15, 0),
-    8:  (16, 0),
-    9:  (17, 30),
-    10: (18, 25),
-    11: (19, 25),
-    12: (20, 25),
-}
-
-PERIOD_END_TIMES = {
-    1:  (8, 0),
-    2:  (9, 0),
-    3:  (10, 0),
-    4:  (11, 0),
-    5:  (14, 0),
-    6:  (15, 0),
-    7:  (16, 0),
-    8:  (17, 0),
-    9:  (18, 25),
-    10: (19, 25),
-    11: (20, 25),
-    12: (21, 25),
-}
 
 router = APIRouter(
     prefix="/api/events",
