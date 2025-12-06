@@ -138,6 +138,17 @@ def join_event(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(security.get_user_from_cookie)
 ):
+    
+    clean_role = role.strip().lower()
+    
+    # Map các từ khóa tắt về giá trị chuẩn của Enum
+    if clean_role in ["ta", "teaching_assistant", "tro_giang"]:
+        role_enum = EventRole.TA.value # "teaching_assistant"
+    elif clean_role in ["instructor", "gv", "giang_vien"]:
+        role_enum = EventRole.INSTRUCTOR.value # "instructor"
+    else:
+        raise HTTPException(status_code=400, detail="Vai trò không hợp lệ (chỉ chấp nhận: instructor, teaching_assistant)")
+    
     # 1. Check event tồn tại
     event = db.query(models.Event).filter(models.Event.event_id == event_id).first()
     if not event:
@@ -168,7 +179,7 @@ def join_event(
         raise HTTPException(status_code=400, detail="Event has reached maximum number of participants")
 
     # 3. Tạo link
-    user_event = models.UserEvent(user_id=current_user.user_id, event_id=event_id, role=role)
+    user_event = models.UserEvent(user_id=current_user.user_id, event_id=event_id, role=role_enum)
     
     try:
         db.add(user_event)

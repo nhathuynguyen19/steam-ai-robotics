@@ -113,12 +113,25 @@ async def render_events_table(
 
     events_view = []
     for event in filtered_events:
-        # 1. Tách danh sách tham gia
-        # Lưu ý: check kỹ string role trong DB so với Enum. 
-        # Trong schemas.py: INSTRUCTOR = "instructor", TA = "teaching_assistant"
+        list_instructors = []
+        list_tas = []
         
-        list_instructors = [p for p in event.participants if p.role == EventRole.INSTRUCTOR.value]
-        list_tas = [p for p in event.participants if p.role == EventRole.TA.value]
+        # --- [LOGIC MỚI AN TOÀN] ---
+        if event.participants:
+            for p in event.participants:
+                if not p.role: continue
+                
+                # Chuẩn hóa về chữ thường để so sánh
+                r = p.role.lower().strip() 
+                
+                # Check Instructor (Chấp nhận nhiều biến thể)
+                if r in ['instructor', 'gv', 'giang_vien']:
+                    list_instructors.append(p)
+                
+                # Check TA (Chấp nhận cả 'ta' cũ và 'teaching_assistant' mới)
+                elif r in ['ta', 'teaching_assistant', 'tro_giang']:
+                    list_tas.append(p)
+        # ---------------------------
         
         # Lấy tên để hiển thị (như cũ)
         instructor_names = [p.user.full_name for p in list_instructors if p.user]

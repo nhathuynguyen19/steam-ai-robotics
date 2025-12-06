@@ -97,7 +97,6 @@
                     
                     {# --- HÀNG 1: ĐỨNG LỚP (INSTRUCTOR) --- #}
                     <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="fw-bold text-primary small text-uppercase" style="width: 25px;">GV</span>
                         
                         {# CASE A: Đã tham gia #}
                         {% if event.is_joined %}
@@ -143,7 +142,7 @@
                                     hx-post="/api/events/{{ event.event_id }}/join/"
                                     hx-vals='{"role": "instructor"}'
                                     hx-target="#events-list-container" hx-swap="outerHTML">
-                                    Đăng ký
+                                    Đăng ký dạy
                                 </button>
                             {% endif %}
                         {% endif %}
@@ -151,7 +150,6 @@
 
                     {# --- HÀNG 2: HỖ TRỢ (TA) --- #}
                     <div class="d-flex align-items-center gap-2">
-                        <span class="fw-bold text-success small text-uppercase" style="width: 25px;">TA</span>
 
                         {% if event.is_joined %}
                             {% if event.user_role == 'teaching_assistant' or event.user_role == 'ta' %}
@@ -195,7 +193,7 @@
                                     hx-post="/api/events/{{ event.event_id }}/join/"
                                     hx-vals='{"role": "teaching_assistant"}'
                                     hx-target="#events-list-container" hx-swap="outerHTML">
-                                    Đăng ký
+                                    Đăng ký trợ giảng
                                 </button>
                             {% endif %}
                         {% endif %}

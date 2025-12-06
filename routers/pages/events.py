@@ -218,4 +218,4 @@ async def update_event_action(
                 "period_start_times": PERIOD_START_TIMES,
                 "period_end_times": PERIOD_END_TIMES
             }
-        )
+        ) 
