@@ -204,6 +204,15 @@
             {% if user and user.role == 'admin' %}
             <td class="text-center">
               <div class="d-flex flex-column gap-1 justify-content-center">
+                
+                <button class="btn btn-outline-info btn-sm border-0" 
+                        title="Quản lý nhân sự (Add/Remove)"
+                        hx-get="/partials/events/{{ event.event_id }}/members" 
+                        hx-target="#manageMembersModalBody" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#manageMembersModal">
+                  <i class="bi bi-people-fill"></i>
+                </button>
                 <a href="/events/{{ event.event_id }}/edit" class="btn btn-outline-primary btn-sm border-0" title="Sửa">
                   <i class="bi bi-pencil-square"></i>
                 </a>
@@ -241,4 +250,4 @@
       </table>
     </div>
   </div>
-    </div>
+</div>

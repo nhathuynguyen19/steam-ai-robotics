@@ -64,7 +64,7 @@ async def render_events_table(
         .filter(models.Event.status != "deleted")\
         .options(joinedload(models.Event.participants).joinedload(models.UserEvent.user))\
         .order_by(models.Event.day_start)\
-        .limit(20)\
+        .limit(50)\
         .all()
 
     filtered_events: list[models.Event] = []
